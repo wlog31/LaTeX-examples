@@ -672,6 +672,16 @@ function exitEditMode() {
   if (compiledPdf) { URL.revokeObjectURL(compiledPdf); compiledPdf = null; }
 }
 
+function switchPreview(mode) {
+  previewMode = mode;
+  const svgCanvas = document.getElementById('svg-canvas');
+  const pdfFrame  = document.getElementById('edit-pdf-frame');
+  document.getElementById('ptgl-svg').classList.toggle('active', mode === 'svg');
+  document.getElementById('ptgl-pdf').classList.toggle('active', mode === 'pdf');
+  svgCanvas.style.display = mode === 'svg' ? 'flex' : 'none';
+  pdfFrame.style.display  = mode === 'pdf' ? 'block' : 'none';
+}
+
 function updateEditTexDownload() {
   if (!current || !editor) return;
   const blob = new Blob([editor.getValue()], { type: 'text/plain' });
@@ -766,27 +776,44 @@ async function runCompile() {
 
     stxt.textContent = 'PDF 렌더링 중…';
     const pdfBuf = await response.arrayBuffer();
-    const { dataUrl, w, h } = await pdfFirstPageToPng(pdfBuf);
 
+    // ── PDF blob URL (for PDF preview & download) ──────────
+    if (compiledPdf) URL.revokeObjectURL(compiledPdf);
+    const pdfBlob = new Blob([pdfBuf], { type: 'application/pdf' });
+    compiledPdf = URL.createObjectURL(pdfBlob);
+    const editPdfFrame = document.getElementById('edit-pdf-frame');
+    editPdfFrame.src = compiledPdf;
+
+    // ── PNG rendering → SVG wrapper ───────────────────────
+    const { dataUrl, w, h } = await pdfFirstPageToPng(pdfBuf);
     const svgStr  = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'
       + w + '" height="' + h + '"><image xlink:href="' + dataUrl + '" width="' + w + '" height="' + h + '"/></svg>';
     const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
     const svgUrl  = URL.createObjectURL(svgBlob);
     compiledSvg   = { dataUrl, svgUrl };
 
+    // ── Update SVG canvas ─────────────────────────────────
     const canvas = document.getElementById('svg-canvas');
     canvas.innerHTML = '';
     const img = document.createElement('img');
     img.src = dataUrl; img.alt = 'Compiled output';
     canvas.appendChild(img);
 
-    const dlSvg = document.getElementById('ab-dl-svg');
-    dlSvg.href = svgUrl; dlSvg.download = current.name + '.svg';
-    dlSvg.style.display = 'flex';
+    // ── Show toggle + download buttons ───────────────────
+    document.getElementById('preview-toggle').style.display = 'flex';
+    const dlSvg  = document.getElementById('ab-dl-svg');
+    const dlPdfE = document.getElementById('ab-dl-pdf-e');
+    dlSvg.href   = svgUrl;  dlSvg.download  = current.name + '.svg';  dlSvg.style.display  = 'flex';
+    dlPdfE.href  = compiledPdf; dlPdfE.download = current.name + '.pdf'; dlPdfE.style.display = 'flex';
+    document.getElementById('ab-sep-dl').style.display   = 'flex';
+    document.getElementById('ab-dl-label').style.display = 'flex';
+
+    // Keep current preview mode, stay on whichever tab is active
+    switchPreview(previewMode);
 
     dot.className = 'status-dot ok';
     stxt.textContent = '완료 — ' + new Date().toLocaleTimeString('ko-KR');
-    toast('컴파일 성공! SVG 다운로드 가능합니다', 'ok');
+    toast('컴파일 성공! PDF · SVG 다운로드 가능합니다', 'ok');
 
   } catch (err) {
     dot.className = 'status-dot err';
