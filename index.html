@@ -669,6 +669,7 @@ function exitEditMode() {
   document.getElementById('left-label').textContent = 'TeX 코드';
   document.getElementById('right-label').textContent = '미리보기 (PDF)';
   compiledSvg = null;
+  if (compiledPdf) { URL.revokeObjectURL(compiledPdf); compiledPdf = null; }
 }
 
 function updateEditTexDownload() {
