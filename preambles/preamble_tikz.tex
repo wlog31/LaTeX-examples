@@ -1,0 +1,50 @@
+
+% Core packages
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{pgfplots}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{kotex}
+
+% TikZ / PGF configuration
+\usetikzlibrary{
+  arrows.meta,
+  calc,
+  positioning,
+  shapes.geometric,
+  shapes.symbols,
+  fit,
+  backgrounds,
+  patterns,
+  matrix,
+  intersections,
+  decorations.pathmorphing,
+  decorations.markings,
+  angles,
+  quotes
+}
+\pgfplotsset{compat=1.18}
+
+% Reusable TikZ styles
+\tikzset{
+  >=stealth,
+  line cap=round,
+  line join=round,
+  every picture/.style={line width=0.9pt},
+  box/.style={draw, rounded corners, minimum width=2.8cm, minimum height=1.2cm, align=center},
+  circlebox/.style={draw, circle, minimum size=1cm, align=center},
+  arrow/.style={->, thick},
+  dashedarrow/.style={->, thick, dashed},
+  point/.style={circle, fill, inner sep=1.2pt},
+  gridhelp/.style={help lines, gray!35},
+  highlight/.style={fill=blue!10, draw=blue!60!black},
+  3D/.style={
+    x={(-0.60cm,-0.42cm)},
+    y={(0.78cm,0cm)},
+    z={(0cm,0.78cm)}
+  }
+}
