@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LaTeX Examples</title>
 
-<!-- highlight.js — view mode syntax highlight -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<!-- highlight.js -->
+<link id="hljs-css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/latex.min.js"></script>
 
-<!-- CodeMirror 5 — edit mode code editor -->
+<!-- CodeMirror 5 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
 
-<!-- PDF.js — render compiled PDF to PNG -->
+<!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <style>
@@ -25,29 +25,115 @@
 html, body { height: 100%; overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 
+/* ════════════════════════════════════════
+   THEME VARIABLES
+════════════════════════════════════════ */
+:root {
+  /* Dark (default) */
+  --bg-app:        #0f172a;
+  --bg-header:     #0f172a;
+  --bg-sidebar:    #111827;
+  --bg-welcome:    #0f172a;
+  --bg-actionbar:  #0f172a;
+  --border:        #1e293b;
+  --text-logo:     #f1f5f9;
+  --text-sep:      #334155;
+  --text-file:     #64748b;
+  --text-muted:    #374151;
+  --text-folder:   #6b7280;
+  --item-hover:    #1a2234;
+  --item-hover-t:  #9ca3af;
+  --item-active:   #1c3461;
+  --item-active-t: #93c5fd;
+  --item-active-b: #3b82f6;
+  --sb-empty:      #374151;
+  --scrollbar:     #1e293b;
+  --drag-bg:       #1e293b;
+  --drag-dot:      #334155;
+  --ab-sep:        #1e293b;
+  --ab-label:      #374151;
+  --ab-ghost-bd:   #374151;
+  --ab-ghost-t:    #9ca3af;
+  --toast-bg:      #1e293b;
+  --toast-t:       #e2e8f0;
+  --toast-bd:      #334155;
+  --wc-title:      #f1f5f9;
+  --wc-desc:       #475569;
+  --wc-meta:       #374151;
+  --gh-color:      #475569;
+  --gh-hover:      #94a3b8;
+  --badge-v-bg:    #1e3a5f;
+  --badge-v-t:     #60a5fa;
+  --badge-e-bg:    #1a3a20;
+  --badge-e-t:     #4ade80;
+  --theme-icon:    '☀️';
+}
+
+:root.light {
+  /* Light — Claude-inspired */
+  --bg-app:        #f9f8f5;
+  --bg-header:     #ffffff;
+  --bg-sidebar:    #f2f1ee;
+  --bg-welcome:    #f9f8f5;
+  --bg-actionbar:  #ffffff;
+  --border:        #e5e3dd;
+  --text-logo:     #1a1a1a;
+  --text-sep:      #c8c3bb;
+  --text-file:     #8a8a8a;
+  --text-muted:    #b0aba2;
+  --text-folder:   #888882;
+  --item-hover:    #eae8e3;
+  --item-hover-t:  #333330;
+  --item-active:   #ede8df;
+  --item-active-t: #b45309;
+  --item-active-b: #d97706;
+  --sb-empty:      #b0aba2;
+  --scrollbar:     #d8d5ce;
+  --drag-bg:       #e5e3dd;
+  --drag-dot:      #c8c3bb;
+  --ab-sep:        #e5e3dd;
+  --ab-label:      #9b9791;
+  --ab-ghost-bd:   #d8d5ce;
+  --ab-ghost-t:    #5a5754;
+  --toast-bg:      #ffffff;
+  --toast-t:       #1a1a1a;
+  --toast-bd:      #e5e3dd;
+  --wc-title:      #1a1a1a;
+  --wc-desc:       #6b6b6b;
+  --wc-meta:       #9b9791;
+  --gh-color:      #9b9791;
+  --gh-hover:      #5a5754;
+  --badge-v-bg:    #fef3c7;
+  --badge-v-t:     #92400e;
+  --badge-e-bg:    #d1fae5;
+  --badge-e-t:     #065f46;
+  --theme-icon:    '🌙';
+}
+
 /* ── App shell ── */
-#app { display: flex; flex-direction: column; height: 100vh; background: #0f172a; }
+#app { display: flex; flex-direction: column; height: 100vh;
+  background: var(--bg-app); transition: background 0.2s; }
 
 /* ════════════════════════════════════════
    HEADER
 ════════════════════════════════════════ */
 header {
   height: 48px; flex-shrink: 0;
-  background: #0f172a;
-  border-bottom: 1px solid #1e293b;
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border);
   display: flex; align-items: center;
-  padding: 0 1rem; gap: 10px;
-  z-index: 20;
+  padding: 0 1rem; gap: 10px; z-index: 20;
+  transition: background 0.2s, border-color 0.2s;
 }
-.hd-logo { font-weight: 700; color: #f1f5f9; font-size: 0.95rem; white-space: nowrap; }
-.hd-sep  { color: #334155; font-size: 1.2rem; }
-.hd-file { color: #64748b; font-size: 0.82rem; }
+.hd-logo { font-weight: 700; color: var(--text-logo); font-size: 0.95rem; white-space: nowrap; transition: color 0.2s; }
+.hd-sep  { color: var(--text-sep); font-size: 1.2rem; transition: color 0.2s; }
+.hd-file { color: var(--text-file); font-size: 0.82rem; transition: color 0.2s; }
 .hd-mode-badge {
   font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
-  padding: 2px 7px; border-radius: 9999px;
+  padding: 2px 7px; border-radius: 9999px; transition: background 0.2s, color 0.2s;
 }
-.hd-mode-badge.view { background: #1e3a5f; color: #60a5fa; }
-.hd-mode-badge.edit { background: #1a3a20; color: #4ade80; }
+.hd-mode-badge.view { background: var(--badge-v-bg); color: var(--badge-v-t); }
+.hd-mode-badge.edit { background: var(--badge-e-bg); color: var(--badge-e-t); }
 .hd-space { flex: 1; }
 .hd-btn {
   height: 30px; padding: 0 12px; border-radius: 6px; border: none; cursor: pointer;
@@ -55,88 +141,103 @@ header {
   display: flex; align-items: center; gap: 5px;
 }
 .hd-btn:hover { filter: brightness(1.12); }
-.hd-btn.use   { background: #2563eb; color: white; }
-.hd-btn.back  { background: #374151; color: #d1d5db; display: none; }
+.hd-btn.use     { background: #2563eb; color: white; }
+.hd-btn.back    { background: #374151; color: #d1d5db; display: none; }
 .hd-btn.compile { background: #059669; color: white; display: none; }
 .hd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 #app.edit-mode .hd-btn.use     { display: none; }
 #app.edit-mode .hd-btn.back    { display: flex; }
 #app.edit-mode .hd-btn.compile { display: flex; }
+
+/* Theme toggle */
+.hd-theme {
+  width: 30px; height: 30px; border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; flex-shrink: 0;
+  transition: background 0.15s, border-color 0.2s;
+  line-height: 1;
+}
+.hd-theme:hover { background: var(--item-hover); }
+
 .hd-gh {
-  color: #475569; text-decoration: none; display: flex; align-items: center;
+  color: var(--gh-color); text-decoration: none; display: flex; align-items: center;
   gap: 5px; font-size: 0.78rem; transition: color 0.12s; padding: 0 4px;
 }
-.hd-gh:hover { color: #94a3b8; }
+.hd-gh:hover { color: var(--gh-hover); }
 
 /* ════════════════════════════════════════
-   BODY = sidebar + split workspace
+   BODY
 ════════════════════════════════════════ */
 .body { flex: 1; display: flex; overflow: hidden; }
 
 /* ── Sidebar ── */
 .sidebar {
   width: 210px; flex-shrink: 0;
-  background: #111827; border-right: 1px solid #1e293b;
+  background: var(--bg-sidebar); border-right: 1px solid var(--border);
   display: flex; flex-direction: column; overflow: hidden;
-  transition: width 0.2s;
+  transition: width 0.2s, background 0.2s, border-color 0.2s;
 }
 .sidebar.hidden { width: 0; }
 .sb-head {
   padding: 0.6rem 0.9rem;
   font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  color: #374151; border-bottom: 1px solid #1e293b; flex-shrink: 0;
+  color: var(--text-muted); border-bottom: 1px solid var(--border); flex-shrink: 0;
+  transition: color 0.2s, border-color 0.2s;
 }
 .sb-scroll { overflow-y: auto; flex: 1; }
 .sb-scroll::-webkit-scrollbar { width: 4px; }
-.sb-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }
+.sb-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
 
-.folder { border-bottom: 1px solid #1e293b; }
+.folder { border-bottom: 1px solid var(--border); transition: border-color 0.2s; }
 .folder-hdr {
   padding: 0.5rem 0.9rem; display: flex; align-items: center; gap: 6px;
-  font-size: 0.76rem; font-weight: 600; color: #6b7280;
-  cursor: pointer; user-select: none; transition: background 0.1s;
+  font-size: 0.76rem; font-weight: 600; color: var(--text-folder);
+  cursor: pointer; user-select: none; transition: background 0.1s, color 0.1s;
 }
-.folder-hdr:hover { background: #1a2234; color: #9ca3af; }
+.folder-hdr:hover { background: var(--item-hover); color: var(--item-hover-t); }
 .folder-arrow { margin-left: auto; font-size: 0.6rem; transition: transform 0.18s; }
 .folder.closed .folder-arrow { transform: rotate(-90deg); }
 .folder.closed .file-list { display: none; }
 .file-list { list-style: none; }
 .file-item {
   padding: 0.38rem 0.9rem 0.38rem 1.6rem;
-  font-size: 0.78rem; color: #6b7280;
+  font-size: 0.78rem; color: var(--text-folder);
   display: flex; align-items: center; gap: 5px;
   cursor: pointer; transition: all 0.1s; white-space: nowrap; overflow: hidden;
 }
-.file-item:hover  { background: #1a2234; color: #9ca3af; }
-.file-item.active { background: #1c3461; color: #93c5fd; border-left: 2px solid #3b82f6; padding-left: calc(1.6rem - 2px); }
+.file-item:hover  { background: var(--item-hover); color: var(--item-hover-t); }
+.file-item.active {
+  background: var(--item-active); color: var(--item-active-t);
+  border-left: 2px solid var(--item-active-b); padding-left: calc(1.6rem - 2px);
+}
 .fi-badges { display: flex; gap: 2px; margin-left: auto; flex-shrink: 0; }
 .fi-badge  { font-size: 0.56rem; padding: 1px 3px; border-radius: 2px; font-weight: 700; }
 .fi-badge.pdf { background: #7f1d1d; color: #fca5a5; }
 .fi-badge.svg { background: #14532d; color: #86efac; }
-.sb-empty  { padding: 0.35rem 0.9rem 0.35rem 1.6rem; font-size: 0.72rem; color: #374151; font-style: italic; }
+.sb-empty  { padding: 0.35rem 0.9rem 0.35rem 1.6rem; font-size: 0.72rem; color: var(--sb-empty); font-style: italic; }
 
 /* ════════════════════════════════════════
    SPLIT WORKSPACE
 ════════════════════════════════════════ */
-.workspace {
-  flex: 1; display: flex; overflow: hidden; position: relative;
-}
-/* Welcome screen */
+.workspace { flex: 1; display: flex; overflow: hidden; position: relative; }
+
 .welcome {
   flex: 1; display: flex; align-items: center; justify-content: center;
-  text-align: center; padding: 2rem; background: #0f172a;
+  text-align: center; padding: 2rem;
+  background: var(--bg-welcome); transition: background 0.2s;
 }
 .wc-box { max-width: 380px; }
 .wc-icon  { font-size: 3rem; margin-bottom: 0.75rem; }
-.wc-title { font-size: 1.25rem; font-weight: 600; color: #f1f5f9; margin-bottom: 0.4rem; }
-.wc-desc  { color: #475569; font-size: 0.85rem; line-height: 1.6; }
-.wc-meta  { margin-top: 1.25rem; font-size: 0.72rem; color: #374151; }
+.wc-title { font-size: 1.25rem; font-weight: 600; color: var(--wc-title); margin-bottom: 0.4rem; transition: color 0.2s; }
+.wc-desc  { color: var(--wc-desc); font-size: 0.85rem; line-height: 1.6; transition: color 0.2s; }
+.wc-meta  { margin-top: 1.25rem; font-size: 0.72rem; color: var(--wc-meta); transition: color 0.2s; }
 
-/* Pane container (replaces welcome when file selected) */
 .panes { flex: 1; display: none; overflow: hidden; }
 .panes.visible { display: flex; }
 
-/* Left pane */
+/* Left pane — always dark (code editor) */
 .pane-left {
   flex: 0 0 50%; min-width: 200px; max-width: 80%;
   display: flex; flex-direction: column; overflow: hidden;
@@ -148,10 +249,7 @@ header {
   background: #21252b; color: #4b5263; border-bottom: 1px solid #181a1f;
   flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
 }
-/* View: highlight.js code block */
-#code-view {
-  flex: 1; overflow: auto; display: block;
-}
+#code-view { flex: 1; overflow: auto; display: block; }
 #code-view::-webkit-scrollbar { width: 6px; height: 6px; }
 #code-view::-webkit-scrollbar-thumb { background: #3a3f4b; border-radius: 3px; }
 #code-view pre { margin: 0; border-radius: 0; min-height: 100%; }
@@ -159,10 +257,7 @@ header {
   font-family: 'JetBrains Mono','Fira Code',Consolas,monospace !important;
   font-size: 0.83rem !important; line-height: 1.65 !important;
 }
-/* Edit: CodeMirror */
-#cm-wrap {
-  flex: 1; overflow: hidden; display: none;
-}
+#cm-wrap { flex: 1; overflow: hidden; display: none; }
 #cm-wrap .CodeMirror {
   height: 100%; font-family: 'JetBrains Mono','Fira Code',Consolas,monospace;
   font-size: 0.83rem; line-height: 1.65;
@@ -173,14 +268,14 @@ header {
 /* Drag handle */
 .drag-handle {
   width: 5px; flex-shrink: 0; cursor: col-resize;
-  background: #1e293b; transition: background 0.15s;
+  background: var(--drag-bg); transition: background 0.15s;
   position: relative; z-index: 5;
 }
 .drag-handle:hover, .drag-handle.dragging { background: #3b82f6; }
 .drag-handle::after {
   content: ''; position: absolute; top: 50%; left: 50%;
   transform: translate(-50%,-50%);
-  width: 3px; height: 30px; border-radius: 2px; background: #334155;
+  width: 3px; height: 30px; border-radius: 2px; background: var(--drag-dot);
 }
 
 /* Right pane */
@@ -188,12 +283,8 @@ header {
   flex: 1; min-width: 200px; display: flex; flex-direction: column; overflow: hidden;
   background: #f8fafc; position: relative;
 }
-/* View: PDF iframe */
 #pdf-view { flex: 1; border: none; background: #525659; display: block; }
-/* Edit: SVG canvas */
-#svg-view {
-  flex: 1; display: none; flex-direction: column; overflow: hidden;
-}
+#svg-view { flex: 1; display: none; flex-direction: column; overflow: hidden; }
 .svg-status-bar {
   padding: 0.35rem 0.9rem; font-size: 0.72rem; background: white;
   border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;
@@ -218,9 +309,8 @@ header {
   gap: 10px; color: #94a3b8; text-align: center; font-size: 0.88rem;
 }
 .svg-placeholder-icon { font-size: 2.5rem; }
-#app.edit-mode #pdf-view { display: none; }
-#app.edit-mode #svg-view { display: flex; }
-/* right pane bg in edit mode */
+#app.edit-mode #pdf-view  { display: none; }
+#app.edit-mode #svg-view  { display: flex; }
 #app.edit-mode .pane-right { background: #f8fafc; }
 
 /* ════════════════════════════════════════
@@ -228,15 +318,16 @@ header {
 ════════════════════════════════════════ */
 .action-bar {
   height: 48px; flex-shrink: 0;
-  background: #0f172a; border-top: 1px solid #1e293b;
+  background: var(--bg-actionbar); border-top: 1px solid var(--border);
   display: flex; align-items: center; gap: 7px;
   padding: 0 1rem; overflow-x: auto;
+  transition: background 0.2s, border-color 0.2s;
 }
 .action-bar::-webkit-scrollbar { height: 3px; }
-.action-bar::-webkit-scrollbar-thumb { background: #1e293b; }
+.action-bar::-webkit-scrollbar-thumb { background: var(--scrollbar); }
 
-.ab-sep { width: 1px; height: 20px; background: #1e293b; flex-shrink: 0; margin: 0 2px; }
-.ab-label { font-size: 0.72rem; color: #374151; white-space: nowrap; }
+.ab-sep   { width: 1px; height: 20px; background: var(--ab-sep); flex-shrink: 0; margin: 0 2px; }
+.ab-label { font-size: 0.72rem; color: var(--ab-label); white-space: nowrap; transition: color 0.2s; }
 
 .ab-btn {
   height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid;
@@ -247,15 +338,13 @@ header {
 .ab-btn:hover:not(:disabled) { filter: brightness(1.12); }
 .ab-btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
-/* Colours */
-.ab-use     { background: #1d4ed8; border-color: #1d4ed8; color: white; }
-.ab-back    { background: transparent; border-color: #374151; color: #9ca3af; }
-.ab-copy    { background: transparent; border-color: #374151; color: #9ca3af; }
-.ab-tex     { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-.ab-pdf     { background: #fff1f2; border-color: #fecaca; color: #b91c1c; }
-.ab-svg     { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+.ab-use  { background: #1d4ed8; border-color: #1d4ed8; color: white; }
+.ab-back { background: transparent; border-color: var(--ab-ghost-bd); color: var(--ab-ghost-t); }
+.ab-copy { background: transparent; border-color: var(--ab-ghost-bd); color: var(--ab-ghost-t); }
+.ab-tex  { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+.ab-pdf  { background: #fff1f2; border-color: #fecaca; color: #b91c1c; }
+.ab-svg  { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
 
-/* View-only / edit-only visibility */
 .view-only { }
 .edit-only { display: none; }
 #app.edit-mode .view-only { display: none; }
@@ -267,10 +356,9 @@ header {
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { display: inline-block; animation: spin 0.7s linear infinite; }
 
-/* Toast */
 .toast {
   position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
-  background: #1e293b; color: #e2e8f0; border: 1px solid #334155;
+  background: var(--toast-bg); color: var(--toast-t); border: 1px solid var(--toast-bd);
   padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.82rem;
   z-index: 100; white-space: nowrap; pointer-events: none;
   animation: toast-in 0.2s ease;
@@ -279,7 +367,6 @@ header {
 .toast.ok  { background: #052e16; border-color: #14532d; color: #86efac; }
 @keyframes toast-in { from { opacity:0; transform:translateX(-50%) translateY(6px); } }
 
-/* No-file placeholders */
 .pane-msg {
   flex: 1; display: flex; align-items: center; justify-content: center;
   font-size: 0.85rem; color: #94a3b8; text-align: center; padding: 2rem;
@@ -300,6 +387,7 @@ header {
     <button class="hd-btn back" id="btn-back">← 돌아가기</button>
     <button class="hd-btn compile" id="btn-compile">⚡ 컴파일</button>
     <button class="hd-btn use" id="btn-use" disabled>사용하기 →</button>
+    <button class="hd-theme" id="btn-theme" title="테마 전환">☀️</button>
     <a class="hd-gh" id="gh-link" href="#" target="_blank" rel="noopener">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
         <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
@@ -327,7 +415,7 @@ header {
     <!-- Workspace -->
     <div class="workspace" id="workspace">
 
-      <!-- Welcome (shown before file is selected) -->
+      <!-- Welcome -->
       <div class="welcome" id="welcome">
         <div class="wc-box">
           <div class="wc-icon">📐</div>
@@ -338,7 +426,7 @@ header {
         </div>
       </div>
 
-      <!-- Split panes (shown after file is selected) -->
+      <!-- Split panes -->
       <div class="panes" id="panes">
 
         <!-- Left pane: code -->
@@ -346,11 +434,9 @@ header {
           <div class="pane-label">
             <span id="left-label">TeX 코드</span>
           </div>
-          <!-- View mode: read-only highlight.js -->
           <div id="code-view">
             <pre><code class="language-latex" id="code-el"></code></pre>
           </div>
-          <!-- Edit mode: CodeMirror -->
           <div id="cm-wrap">
             <div id="cm-container"></div>
           </div>
@@ -364,9 +450,7 @@ header {
           <div class="pane-label">
             <span id="right-label">미리보기</span>
           </div>
-          <!-- View mode: PDF -->
           <iframe id="pdf-view" title="PDF 미리보기"></iframe>
-          <!-- Edit mode: SVG canvas -->
           <div id="svg-view">
             <div class="svg-status-bar">
               <span class="status-dot" id="status-dot"></span>
@@ -388,31 +472,75 @@ header {
   <!-- ═══ ACTION BAR ═══ -->
   <div class="action-bar" id="action-bar">
 
-    <!-- View mode actions -->
+    <!-- View mode -->
     <span class="ab-label view-only">예제 보기</span>
     <button class="ab-btn ab-use view-only" id="ab-use" disabled title="TikZ 폴더 파일만 편집 가능">사용하기 →</button>
     <span class="ab-sep view-only"></span>
     <a class="ab-btn ab-tex view-only hidden" id="ab-dl-tex" href="#" download>⬇ .tex</a>
     <a class="ab-btn ab-pdf view-only hidden" id="ab-dl-pdf" href="#" download>⬇ .pdf</a>
 
-    <!-- Edit mode actions -->
+    <!-- Edit mode -->
     <button class="ab-btn ab-back edit-only" id="ab-back">← 돌아가기</button>
-    <span class="ab-sep edit-only"></span>
     <button class="ab-btn ab-copy edit-only" id="ab-copy">📋 코드 복사</button>
+    <span class="ab-sep edit-only"></span>
     <a class="ab-btn ab-tex edit-only" id="ab-dl-tex-e" href="#" download>⬇ .tex</a>
-    <a class="ab-btn ab-svg edit-only" id="ab-dl-svg" href="#" style="display:none" download>⬇ .svg</a>
+    <a class="ab-btn ab-svg edit-only" id="ab-dl-svg" href="#" download style="display:none">⬇ .svg</a>
 
   </div>
+
 </div><!-- /#app -->
 
 <script>
+/* ════════════════════════════════════════════════════════════
+   THEME
+════════════════════════════════════════════════════════════ */
+(function () {
+  const saved = localStorage.getItem('latex-theme') || 'dark';
+  if (saved === 'light') applyLight();
+
+  document.getElementById('btn-theme').addEventListener('click', () => {
+    const isLight = document.documentElement.classList.contains('light');
+    if (isLight) {
+      applyDark();
+      localStorage.setItem('latex-theme', 'dark');
+    } else {
+      applyLight();
+      localStorage.setItem('latex-theme', 'light');
+    }
+  });
+
+  function applyLight() {
+    document.documentElement.classList.add('light');
+    document.getElementById('btn-theme').textContent = '🌙';
+    document.getElementById('hljs-css').href =
+      'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css';
+    // re-highlight if already rendered
+    const codeEl = document.getElementById('code-el');
+    if (codeEl && codeEl.textContent && codeEl.textContent.trim()) {
+      codeEl.removeAttribute('data-highlighted');
+      hljs.highlightElement(codeEl);
+    }
+  }
+
+  function applyDark() {
+    document.documentElement.classList.remove('light');
+    document.getElementById('btn-theme').textContent = '☀️';
+    document.getElementById('hljs-css').href =
+      'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css';
+    const codeEl = document.getElementById('code-el');
+    if (codeEl && codeEl.textContent && codeEl.textContent.trim()) {
+      codeEl.removeAttribute('data-highlighted');
+      hljs.highlightElement(codeEl);
+    }
+  }
+})();
+
 /* ════════════════════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════════════════════ */
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-/* GitHub link */
 (function () {
   const h = location.hostname;
   if (h.endsWith('.github.io')) {
@@ -425,19 +553,16 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 /* ════════════════════════════════════════════════════════════
    COMPILE ENDPOINT
-   texlive.net 은 CORS 헤더를 제공하지 않아 브라우저 직접 호출 불가.
-   Cloudflare Worker(무료)를 CORS 프록시로 배포한 뒤 아래 URL을 설정하세요.
-   배포 방법: cloudflare-worker.js 파일 참조
 ════════════════════════════════════════════════════════════ */
-const COMPILE_PROXY = '';   // 예: 'https://latex-proxy.yourname.workers.dev'
+const COMPILE_PROXY = '';
 
 /* ════════════════════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════════════════════ */
-let manifest    = null;   // loaded from files.json
-let current     = null;   // currently selected file entry
-let editor      = null;   // CodeMirror instance
-let compiledSvg = null;   // { dataUrl, svgUrl }
+let manifest    = null;
+let current     = null;
+let editor      = null;
+let compiledSvg = null;
 
 /* ════════════════════════════════════════════════════════════
    LOAD MANIFEST
@@ -452,7 +577,6 @@ async function boot() {
       const d = new Date(manifest.generated_at);
       document.getElementById('wc-meta').textContent = `빌드: ${d.toLocaleString('ko-KR')}`;
     }
-    // Auto-open first file
     const first = Object.entries(manifest.folders)
       .flatMap(([f, files]) => files.map(e => ({ folder: f, ...e })))
       .find(Boolean);
@@ -480,7 +604,7 @@ async function tryGitHubAPI() {
       const parts = item.path.split('/');
       if (parts.length !== 2) continue;
       const [folderRaw, file] = parts;
-      const folder = folderRaw.toLowerCase();  // 대소문자 무관 비교
+      const folder = folderRaw.toLowerCase();
       if (!FOLDERS.includes(folder) || !file.endsWith('.tex')) continue;
       const name = file.slice(0, -4);
       folders[folder].push({
@@ -538,7 +662,7 @@ function toggleFolder(key) {
 }
 
 /* ════════════════════════════════════════════════════════════
-   OPEN FILE  (view mode)
+   OPEN FILE
 ════════════════════════════════════════════════════════════ */
 async function openFile(folder, name) {
   if (!manifest) return;
@@ -548,11 +672,9 @@ async function openFile(folder, name) {
   if (!entry) return;
   current = entry;
 
-  // Sidebar active
   document.querySelectorAll('.file-item.active').forEach(el => el.classList.remove('active'));
   document.getElementById(`fi-${folder}-${name}`)?.classList.add('active');
 
-  // Header
   document.getElementById('hd-file').textContent = `${folder} / ${name}.tex`;
   document.getElementById('hd-badge').textContent = '보기';
   document.getElementById('hd-badge').className = 'hd-mode-badge view';
@@ -560,15 +682,12 @@ async function openFile(folder, name) {
   document.getElementById('btn-use').disabled = !isTikz;
   document.getElementById('ab-use').disabled  = !isTikz;
 
-  // Show panes, hide welcome
   document.getElementById('welcome').style.display = 'none';
   document.getElementById('panes').classList.add('visible');
 
-  // Labels
-  document.getElementById('left-label').textContent = 'TeX 코드';
+  document.getElementById('left-label').textContent  = 'TeX 코드';
   document.getElementById('right-label').textContent = '미리보기 (PDF)';
 
-  // Load TeX source
   const codeEl = document.getElementById('code-el');
   codeEl.textContent = '불러오는 중…';
   try {
@@ -582,7 +701,6 @@ async function openFile(folder, name) {
     codeEl.textContent = '// 파일을 불러올 수 없습니다.';
   }
 
-  // Load PDF / SVG into right pane
   if (entry.pdf) {
     document.getElementById('pdf-view').src = entry.pdf;
   } else if (entry.svg) {
@@ -591,7 +709,6 @@ async function openFile(folder, name) {
     document.getElementById('pdf-view').src = 'about:blank';
   }
 
-  // Action bar downloads (view mode)
   const dlTex = document.getElementById('ab-dl-tex');
   dlTex.href = entry.tex; dlTex.download = `${name}.tex`;
   dlTex.style.display = 'flex';
@@ -600,7 +717,6 @@ async function openFile(folder, name) {
     dlPdf.href = entry.pdf; dlPdf.download = `${name}.pdf`;
     dlPdf.style.display = 'flex';
   } else dlPdf.style.display = 'none';
-
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -641,7 +757,7 @@ function enterEditMode() {
 
   document.getElementById('hd-badge').textContent = '편집';
   document.getElementById('hd-badge').className = 'hd-mode-badge edit';
-  document.getElementById('left-label').textContent = 'TeX 편집기';
+  document.getElementById('left-label').textContent  = 'TeX 편집기';
   document.getElementById('right-label').textContent = 'SVG 미리보기';
   document.getElementById('app').classList.add('edit-mode');
 }
@@ -650,11 +766,10 @@ function exitEditMode() {
   document.getElementById('app').classList.remove('edit-mode');
   document.getElementById('hd-badge').textContent = '보기';
   document.getElementById('hd-badge').className = 'hd-mode-badge view';
-  document.getElementById('left-label').textContent = 'TeX 코드';
+  document.getElementById('left-label').textContent  = 'TeX 코드';
   document.getElementById('right-label').textContent = '미리보기 (PDF)';
   compiledSvg = null;
 }
-
 
 function updateEditTexDownload() {
   if (!current || !editor) return;
@@ -667,7 +782,7 @@ function updateEditTexDownload() {
 }
 
 /* ════════════════════════════════════════════════════════════
-   COMPILE  (texlive.net -> PDF.js -> PNG-in-SVG)
+   COMPILE
 ════════════════════════════════════════════════════════════ */
 function resolveTexPath(base, rel) {
   const parts = [...base.split('/'), ...rel.split('/')];
@@ -757,7 +872,6 @@ async function runCompile() {
     stxt.textContent = 'SVG 렌더링 중…';
     const pdfBuf = await response.arrayBuffer();
 
-    // ── PNG rendering → SVG wrapper ───────────────────────
     const { dataUrl, w, h } = await pdfFirstPageToPng(pdfBuf);
     const svgStr  = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'
       + w + '" height="' + h + '"><image xlink:href="' + dataUrl + '" width="' + w + '" height="' + h + '"/></svg>';
@@ -765,14 +879,12 @@ async function runCompile() {
     const svgUrl  = URL.createObjectURL(svgBlob);
     compiledSvg   = { dataUrl, svgUrl };
 
-    // ── Update SVG canvas ─────────────────────────────────
     const canvas = document.getElementById('svg-canvas');
     canvas.innerHTML = '';
     const img = document.createElement('img');
     img.src = dataUrl; img.alt = 'Compiled output';
     canvas.appendChild(img);
 
-    // ── Show SVG download button ──────────────────────────
     const dlSvg = document.getElementById('ab-dl-svg');
     dlSvg.href = svgUrl; dlSvg.download = current.name + '.svg';
     dlSvg.style.display = 'flex';

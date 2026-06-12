@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""generate_manifest.py — files.json 생성"""
+"""generate_manifest.py"""
 
 import json
 import os
@@ -9,8 +9,7 @@ FOLDERS = ["tikz", "graphics", "documents", "preambles"]
 
 
 def resolve_folder(name):
-    if os.path.isdir(name):
-        return name
+    """Return the actual filesystem name for folder `name` (case-insensitive)."""
     for entry in os.listdir("."):
         if entry.lower() == name.lower() and os.path.isdir(entry):
             return entry
@@ -47,9 +46,9 @@ with open("files.json", "w", encoding="utf-8") as fp:
     json.dump(manifest, fp, ensure_ascii=False, indent=2)
 
 total = sum(len(v) for v in manifest["folders"].values())
-print(f"files.json 생성 완료 — 총 {total}개 파일")
+print(f"Done: {total} files")
 for folder, files in manifest["folders"].items():
     for f in files:
         flags = [x for x in ("pdf", "svg") if f[x]]
-        flag_str = f"  [{', '.join(flags)}]" if flags else ""
+        flag_str = "  [" + ", ".join(flags) + "]" if flags else ""
         print(f"  {folder}/{f['name']}.tex{flag_str}")
