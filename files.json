@@ -1,6 +1,14 @@
 {
-  "generated_at": "2026-06-12T03:45:46.888619+00:00",
+  "generated_at": "2026-06-12T06:54:45.422713+00:00",
   "folders": {
+    "tikz": [
+      {
+        "name": "_template",
+        "tex": "tikz/_template.tex",
+        "pdf": "tikz/_template.pdf",
+        "svg": null
+      }
+    ],
     "graphics": [
       {
         "name": "_template",
@@ -9,7 +17,14 @@
         "svg": null
       }
     ],
-    "documents": [],
+    "documents": [
+      {
+        "name": "_template",
+        "tex": "documents/_template.tex",
+        "pdf": null,
+        "svg": null
+      }
+    ],
     "preambles": [
       {
         "name": "preamble_tikz",

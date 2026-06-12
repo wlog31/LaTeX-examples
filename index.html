@@ -479,13 +479,14 @@ async function tryGitHubAPI() {
     for (const item of data.tree) {
       const parts = item.path.split('/');
       if (parts.length !== 2) continue;
-      const [folder, file] = parts;
+      const [folderRaw, file] = parts;
+      const folder = folderRaw.toLowerCase();  // 대소문자 무관 비교
       if (!FOLDERS.includes(folder) || !file.endsWith('.tex')) continue;
       const name = file.slice(0, -4);
       folders[folder].push({
-        name, tex: `${folder}/${name}.tex`,
-        pdf: data.tree.some(t => t.path === `${folder}/${name}.pdf`) ? `${folder}/${name}.pdf` : null,
-        svg: data.tree.some(t => t.path === `${folder}/${name}.svg`) ? `${folder}/${name}.svg` : null,
+        name, tex: `${folderRaw}/${name}.tex`,
+        pdf: data.tree.some(t => t.path === `${folderRaw}/${name}.pdf`) ? `${folderRaw}/${name}.pdf` : null,
+        svg: data.tree.some(t => t.path === `${folderRaw}/${name}.svg`) ? `${folderRaw}/${name}.svg` : null,
       });
     }
     manifest = { folders };
