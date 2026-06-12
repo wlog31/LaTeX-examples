@@ -199,6 +199,16 @@ header {
   border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;
   gap: 6px; color: #64748b; flex-shrink: 0;
 }
+/* Preview toggle (PDF / SVG) */
+.preview-toggle { display: none; margin-left: auto; gap: 2px; flex-shrink: 0; }
+.ptgl {
+  padding: 2px 9px; border-radius: 4px; border: 1px solid #e2e8f0;
+  font-size: 0.7rem; font-weight: 600; cursor: pointer;
+  background: transparent; color: #94a3b8; transition: all 0.12s;
+}
+.ptgl:hover  { background: #f1f5f9; color: #475569; }
+.ptgl.active { background: #1d4ed8; border-color: #1d4ed8; color: white; }
+#edit-pdf-frame { display: none; flex: 1; border: none; background: #525659; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; flex-shrink: 0; }
 .status-dot.ok  { background: #22c55e; }
 .status-dot.err { background: #ef4444; }
@@ -366,11 +376,15 @@ header {
           </div>
           <!-- View mode: PDF -->
           <iframe id="pdf-view" title="PDF 미리보기"></iframe>
-          <!-- Edit mode: SVG -->
+          <!-- Edit mode: SVG / PDF toggle -->
           <div id="svg-view">
             <div class="svg-status-bar">
               <span class="status-dot" id="status-dot"></span>
-              <span id="status-text">⚡ 컴파일 버튼을 눌러 SVG를 생성하세요 (Ctrl+Enter)</span>
+              <span id="status-text">⚡ 컴파일 버튼을 눌러 미리보기를 생성하세요 (Ctrl+Enter)</span>
+              <div class="preview-toggle" id="preview-toggle">
+                <button class="ptgl active" id="ptgl-svg" onclick="switchPreview('svg')">🖼 SVG</button>
+                <button class="ptgl"        id="ptgl-pdf" onclick="switchPreview('pdf')">📄 PDF</button>
+              </div>
             </div>
             <div id="svg-canvas">
               <div class="svg-placeholder">
@@ -378,6 +392,7 @@ header {
                 <div>코드를 수정하고 <b>⚡ 컴파일</b>을 눌러보세요</div>
               </div>
             </div>
+            <iframe id="edit-pdf-frame" title="컴파일된 PDF"></iframe>
           </div>
         </div>
 
