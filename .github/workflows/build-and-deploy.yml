@@ -1,11 +1,13 @@
 # ──────────────────────────────────────────────────────────────────────────────
 # build-and-deploy.yml
 #
-# main 브랜치에 push할 때마다:
-#   1. XeLaTeX으로 graphics/, documents/ 의 .tex 파일을 컴파일 → .pdf
-#   2. pdf2svg 로 .pdf → .svg 변환
-#   3. generate_manifest.py 로 files.json 생성
-#   4. _site/ 디렉토리 구성 후 GitHub Pages 배포
+# .tex / .pdf / .svg 는 로컬에서 컴파일 후 커밋해두고,
+# 이 워크플로는 manifest 생성 + GitHub Pages 배포만 담당합니다.
+#
+# 【로컬 작업 흐름】
+#   1. xelatex <name>.tex         → <name>.pdf
+#   2. pdf2svg <name>.pdf <name>.svg
+#   3. git add *.tex *.pdf *.svg && git push
 #
 # 【최초 1회 설정】
 #   GitHub 저장소 > Settings > Pages > Source 를 "GitHub Actions" 로 변경
@@ -15,7 +17,7 @@ name: Build LaTeX & Deploy
 on:
   push:
     branches: [main]
-  workflow_dispatch:      # 수동 실행 가능
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -34,69 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # TeXLive + pdf2svg 설치 (apt-get 직접 — 서드파티 Action 없음)
-      - name: Setup TeXLive & pdf2svg
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
-            texlive-xetex \
-            texlive-latex-recommended \
-            texlive-latex-extra \
-            texlive-lang-cjk \
-            texlive-pictures \
-            texlive-science \
-            texlive-fonts-extra \
-            fonts-nanum \
-            fonts-nanum-coding \
-            fonts-nanum-extra \
-            pdf2svg
-
-      # ── graphics/ 컴파일 ────────────────────────────────────────────────────
-      - name: Compile graphics
-        run: |
-          shopt -s nullglob
-          for texfile in graphics/*.tex; do
-            name=$(basename "$texfile" .tex)
-            echo "▶ graphics/$name.tex"
-            (cd graphics && xelatex -interaction=nonstopmode -halt-on-error "$name.tex" 2>&1 \
-              | tail -5) \
-              && echo "  ✓ PDF 생성" \
-              || echo "  ✗ 컴파일 실패 (계속 진행)"
-            if [ -f "graphics/$name.pdf" ]; then
-              pdf2svg "graphics/$name.pdf" "graphics/$name.svg" \
-                && echo "  ✓ SVG 변환" \
-                || echo "  ✗ SVG 변환 실패"
-            fi
-          done
-
-      # ── documents/ 컴파일 ──────────────────────────────────────────────────
-      - name: Compile documents
-        run: |
-          shopt -s nullglob
-          for texfile in documents/*.tex; do
-            name=$(basename "$texfile" .tex)
-            echo "▶ documents/$name.tex"
-            (cd documents && xelatex -interaction=nonstopmode -halt-on-error "$name.tex" 2>&1 \
-              | tail -5) \
-              && echo "  ✓ PDF 생성" \
-              || echo "  ✗ 컴파일 실패 (계속 진행)"
-            # 문서는 1페이지만 SVG 미리보기
-            if [ -f "documents/$name.pdf" ]; then
-              # pdf2svg 는 "file.pdf out.svg 1" 으로 특정 페이지 지정
-              pdf2svg "documents/$name.pdf" "documents/$name.svg" 1 \
-                && echo "  ✓ SVG 변환 (p.1)" \
-                || echo "  ✗ SVG 변환 실패"
-            fi
-          done
-
-      # ── 빌드 부산물 삭제 (tex/pdf/svg만 남김) ────────────────────────────
-      - name: Clean build artifacts
-        run: |
-          find graphics documents preambles -maxdepth 1 \
-            ! -name "*.tex" ! -name "*.pdf" ! -name "*.svg" \
-            -type f -delete 2>/dev/null || true
-
-      # ── 매니페스트 생성 ────────────────────────────────────────────────────
+      # ── 매니페스트 생성 (Python 표준 라이브러리만 사용) ──────────────────
       - name: Generate files.json
         run: python3 generate_manifest.py
 
@@ -105,11 +45,9 @@ jobs:
         run: |
           mkdir -p _site
 
-          # 뷰어 파일
           cp index.html _site/
           cp files.json _site/
 
-          # 각 폴더의 .tex / .pdf / .svg 복사 (빌드 부산물 제외)
           for folder in graphics documents preambles; do
             mkdir -p "_site/$folder"
             find "$folder" -maxdepth 1 \
