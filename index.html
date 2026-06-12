@@ -474,7 +474,7 @@ async function tryGitHubAPI() {
     const r = await fetch(`https://api.github.com/repos/${user}/${repo}/git/trees/HEAD?recursive=1`);
     const data = await r.json();
     if (!data.tree) return;
-    const FOLDERS = ['graphics', 'documents', 'preambles'];
+    const FOLDERS = ['tikz', 'graphics', 'documents', 'preambles'];
     const folders = Object.fromEntries(FOLDERS.map(f => [f, []]));
     for (const item of data.tree) {
       const parts = item.path.split('/');

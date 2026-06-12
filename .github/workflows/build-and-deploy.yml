@@ -1,18 +1,19 @@
 # ──────────────────────────────────────────────────────────────────────────────
 # build-and-deploy.yml
 #
-# .tex / .pdf / .svg 는 로컬에서 컴파일 후 커밋해두고,
-# 이 워크플로는 manifest 생성 + GitHub Pages 배포만 담당합니다.
-#
-# 【로컬 작업 흐름】
-#   1. xelatex <name>.tex         → <name>.pdf
-#   2. pdf2svg <name>.pdf <name>.svg
-#   3. git add *.tex *.pdf *.svg && git push
+# 외부 Action(uses:)을 전혀 사용하지 않음 — git 명령만으로 checkout + 배포
 #
 # 【최초 1회 설정】
-#   GitHub 저장소 > Settings > Pages > Source 를 "GitHub Actions" 로 변경
+#   GitHub 저장소 > Settings > Pages > Source
+#   → "Deploy from a branch" 선택
+#   → Branch: gh-pages / root 선택 후 저장
+#
+# 【로컬 작업 흐름】
+#   1. xelatex <name>.tex  →  <name>.pdf
+#   2. pdf2svg <name>.pdf <name>.svg
+#   3. git add *.tex *.pdf *.svg && git push
 # ──────────────────────────────────────────────────────────────────────────────
-name: Build LaTeX & Deploy
+name: Build & Deploy
 
 on:
   push:
@@ -20,61 +21,51 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+  contents: write   # gh-pages 브랜치에 push하기 위해 필요
 
 jobs:
-  # ── 1. Build ────────────────────────────────────────────────────────────────
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
+      # ── 소스 체크아웃 (actions/checkout 대신 git clone 직접 사용) ──────────
       - name: Checkout
-        uses: actions/checkout@v4
-
-      # ── 매니페스트 생성 (Python 표준 라이브러리만 사용) ──────────────────
-      - name: Generate files.json
-        run: python3 generate_manifest.py
-
-      # ── _site/ 구성 ────────────────────────────────────────────────────────
-      - name: Prepare _site
         run: |
-          mkdir -p _site
+          git clone --depth 1 \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            repo
 
+      # ── files.json 생성 + _site/ 구성 ──────────────────────────────────────
+      - name: Build _site
+        run: |
+          cd repo
+          python3 generate_manifest.py
+
+          mkdir -p _site
           cp index.html _site/
           cp files.json _site/
+          [ -f cloudflare-worker.js ] && cp cloudflare-worker.js _site/ || true
 
           for folder in tikz graphics documents preambles; do
-            mkdir -p "_site/$folder"
-            find "$folder" -maxdepth 1 \
-              \( -name "*.tex" -o -name "*.pdf" -o -name "*.svg" \) \
-              -exec cp {} "_site/$folder/" \; 2>/dev/null || true
+            if [ -d "$folder" ]; then
+              mkdir -p "_site/$folder"
+              find "$folder" -maxdepth 1 \
+                \( -name "*.tex" -o -name "*.pdf" -o -name "*.svg" \) \
+                -exec cp {} "_site/$folder/" \; 2>/dev/null || true
+            fi
           done
 
           echo "──── _site 구조 ────"
           find _site -type f | sort
 
-      # ── Pages 아티팩트 업로드 ──────────────────────────────────────────────
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-  # ── 2. Deploy ───────────────────────────────────────────────────────────────
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      # ── gh-pages 브랜치에 강제 push (deploy) ───────────────────────────────
+      - name: Deploy to gh-pages
+        run: |
+          cd repo/_site
+          git init -b gh-pages
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add --all
+          git commit -m "Deploy from ${{ github.sha }}"
+          git push --force \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            gh-pages
