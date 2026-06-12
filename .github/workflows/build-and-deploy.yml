@@ -48,7 +48,7 @@ jobs:
           cp index.html _site/
           cp files.json _site/
 
-          for folder in graphics documents preambles; do
+          for folder in tikz graphics documents preambles; do
             mkdir -p "_site/$folder"
             find "$folder" -maxdepth 1 \
               \( -name "*.tex" -o -name "*.pdf" -o -name "*.svg" \) \

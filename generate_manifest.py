@@ -13,7 +13,7 @@ import json
 import os
 from datetime import datetime, timezone
 
-FOLDERS = ["graphics", "documents", "preambles"]
+FOLDERS = ["tikz", "graphics", "documents", "preambles"]
 
 
 def scan(folder: str) -> list:

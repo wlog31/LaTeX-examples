@@ -199,16 +199,6 @@ header {
   border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;
   gap: 6px; color: #64748b; flex-shrink: 0;
 }
-/* Preview toggle (PDF / SVG) */
-.preview-toggle { display: none; margin-left: auto; gap: 2px; flex-shrink: 0; }
-.ptgl {
-  padding: 2px 9px; border-radius: 4px; border: 1px solid #e2e8f0;
-  font-size: 0.7rem; font-weight: 600; cursor: pointer;
-  background: transparent; color: #94a3b8; transition: all 0.12s;
-}
-.ptgl:hover  { background: #f1f5f9; color: #475569; }
-.ptgl.active { background: #1d4ed8; border-color: #1d4ed8; color: white; }
-#edit-pdf-frame { display: none; flex: 1; border: none; background: #525659; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; flex-shrink: 0; }
 .status-dot.ok  { background: #22c55e; }
 .status-dot.err { background: #ef4444; }
@@ -376,15 +366,11 @@ header {
           </div>
           <!-- View mode: PDF -->
           <iframe id="pdf-view" title="PDF 미리보기"></iframe>
-          <!-- Edit mode: SVG / PDF toggle -->
+          <!-- Edit mode: SVG canvas -->
           <div id="svg-view">
             <div class="svg-status-bar">
               <span class="status-dot" id="status-dot"></span>
-              <span id="status-text">⚡ 컴파일 버튼을 눌러 미리보기를 생성하세요 (Ctrl+Enter)</span>
-              <div class="preview-toggle" id="preview-toggle">
-                <button class="ptgl active" id="ptgl-svg" onclick="switchPreview('svg')">🖼 SVG</button>
-                <button class="ptgl"        id="ptgl-pdf" onclick="switchPreview('pdf')">📄 PDF</button>
-              </div>
+              <span id="status-text">⚡ 컴파일 버튼을 눌러 SVG 미리보기를 생성하세요 (Ctrl+Enter)</span>
             </div>
             <div id="svg-canvas">
               <div class="svg-placeholder">
@@ -392,7 +378,6 @@ header {
                 <div>코드를 수정하고 <b>⚡ 컴파일</b>을 눌러보세요</div>
               </div>
             </div>
-            <iframe id="edit-pdf-frame" title="컴파일된 PDF"></iframe>
           </div>
         </div>
 
@@ -405,7 +390,7 @@ header {
 
     <!-- View mode actions -->
     <span class="ab-label view-only">예제 보기</span>
-    <button class="ab-btn ab-use view-only" id="ab-use" disabled>사용하기 →</button>
+    <button class="ab-btn ab-use view-only" id="ab-use" disabled title="TikZ 폴더 파일만 편집 가능">사용하기 →</button>
     <span class="ab-sep view-only"></span>
     <a class="ab-btn ab-tex view-only hidden" id="ab-dl-tex" href="#" download>⬇ .tex</a>
     <a class="ab-btn ab-pdf view-only hidden" id="ab-dl-pdf" href="#" download>⬇ .pdf</a>
@@ -415,10 +400,7 @@ header {
     <span class="ab-sep edit-only"></span>
     <button class="ab-btn ab-copy edit-only" id="ab-copy">📋 코드 복사</button>
     <a class="ab-btn ab-tex edit-only" id="ab-dl-tex-e" href="#" download>⬇ .tex</a>
-    <span class="ab-sep edit-only" id="ab-sep-dl" style="display:none"></span>
-    <span class="ab-label edit-only" id="ab-dl-label" style="display:none">다운로드:</span>
-    <a class="ab-btn ab-pdf edit-only" id="ab-dl-pdf-e" href="#" style="display:none" download>⬇ .pdf</a>
-    <a class="ab-btn ab-svg edit-only" id="ab-dl-svg"   href="#" style="display:none" download>⬇ .svg</a>
+    <a class="ab-btn ab-svg edit-only" id="ab-dl-svg" href="#" style="display:none" download>⬇ .svg</a>
 
   </div>
 </div><!-- /#app -->
@@ -442,14 +424,20 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 })();
 
 /* ════════════════════════════════════════════════════════════
+   COMPILE ENDPOINT
+   texlive.net 은 CORS 헤더를 제공하지 않아 브라우저 직접 호출 불가.
+   Cloudflare Worker(무료)를 CORS 프록시로 배포한 뒤 아래 URL을 설정하세요.
+   배포 방법: cloudflare-worker.js 파일 참조
+════════════════════════════════════════════════════════════ */
+const COMPILE_PROXY = '';   // 예: 'https://latex-proxy.yourname.workers.dev'
+
+/* ════════════════════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════════════════════ */
 let manifest    = null;   // loaded from files.json
 let current     = null;   // currently selected file entry
 let editor      = null;   // CodeMirror instance
 let compiledSvg = null;   // { dataUrl, svgUrl }
-let compiledPdf = null;   // PDF blob URL
-let previewMode = 'svg';  // 'svg' | 'pdf'
 
 /* ════════════════════════════════════════════════════════════
    LOAD MANIFEST
@@ -509,6 +497,7 @@ async function tryGitHubAPI() {
    SIDEBAR
 ════════════════════════════════════════════════════════════ */
 const FOLDERS = {
+  tikz:      { icon: '✏️', label: 'tikz', editable: true },
   graphics:  { icon: '🎨', label: 'graphics' },
   documents: { icon: '📄', label: 'documents' },
   preambles: { icon: '📦', label: 'preambles' },
@@ -566,7 +555,9 @@ async function openFile(folder, name) {
   document.getElementById('hd-file').textContent = `${folder} / ${name}.tex`;
   document.getElementById('hd-badge').textContent = '보기';
   document.getElementById('hd-badge').className = 'hd-mode-badge view';
-  document.getElementById('btn-use').disabled = false;
+  const isTikz = (folder === 'tikz');
+  document.getElementById('btn-use').disabled = !isTikz;
+  document.getElementById('ab-use').disabled  = !isTikz;
 
   // Show panes, hide welcome
   document.getElementById('welcome').style.display = 'none';
@@ -609,7 +600,6 @@ async function openFile(folder, name) {
     dlPdf.style.display = 'flex';
   } else dlPdf.style.display = 'none';
 
-  document.getElementById('ab-use').disabled = false;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -645,14 +635,7 @@ function enterEditMode() {
     </div>`;
   document.getElementById('status-dot').className = 'status-dot';
   document.getElementById('status-text').textContent = '컴파일 대기 중';
-  document.getElementById('ab-dl-svg').style.display   = 'none';
-  document.getElementById('ab-dl-pdf-e').style.display = 'none';
-  document.getElementById('ab-sep-dl').style.display   = 'none';
-  document.getElementById('ab-dl-label').style.display = 'none';
-  document.getElementById('preview-toggle').style.display = 'none';
-  document.getElementById('edit-pdf-frame').style.display = 'none';
-  previewMode = 'svg';
-  switchPreview('svg');
+  document.getElementById('ab-dl-svg').style.display = 'none';
   updateEditTexDownload();
 
   document.getElementById('hd-badge').textContent = '편집';
@@ -669,18 +652,8 @@ function exitEditMode() {
   document.getElementById('left-label').textContent = 'TeX 코드';
   document.getElementById('right-label').textContent = '미리보기 (PDF)';
   compiledSvg = null;
-  if (compiledPdf) { URL.revokeObjectURL(compiledPdf); compiledPdf = null; }
 }
 
-function switchPreview(mode) {
-  previewMode = mode;
-  const svgCanvas = document.getElementById('svg-canvas');
-  const pdfFrame  = document.getElementById('edit-pdf-frame');
-  document.getElementById('ptgl-svg').classList.toggle('active', mode === 'svg');
-  document.getElementById('ptgl-pdf').classList.toggle('active', mode === 'pdf');
-  svgCanvas.style.display = mode === 'svg' ? 'flex' : 'none';
-  pdfFrame.style.display  = mode === 'pdf' ? 'block' : 'none';
-}
 
 function updateEditTexDownload() {
   if (!current || !editor) return;
@@ -746,7 +719,8 @@ async function runCompile() {
     stxt.textContent = '\\input{} 파일 인라인 중…';
     const inlined = await inlineInputs(rawTex, baseFolder);
 
-    stxt.textContent = 'texlive.net 서버 전송 중…';
+    const endpoint = COMPILE_PROXY || 'https://texlive.net/cgi-bin/latexcgi';
+    stxt.textContent = '서버 전송 중… (' + (COMPILE_PROXY ? 'proxy' : 'texlive.net') + ')';
     const form = new FormData();
     form.append('filecontents[]', inlined);
     form.append('filename[]', 'document.tex');
@@ -755,15 +729,20 @@ async function runCompile() {
 
     let response;
     try {
-      response = await fetch('https://texlive.net/cgi-bin/latexcgi', { method: 'POST', body: form });
-    } catch {
-      const fileUrl = encodeURIComponent(
-        `${location.origin}${location.pathname.replace(/\/$/, '')}/${current.tex}`
-      );
-      dot.className = 'status-dot err';
-      stxt.innerHTML = 'CORS 오류 — <a href="https://latexonline.cc/compile?url=' + fileUrl
-        + '&command=xelatex" target="_blank" rel="noopener" style="color:#60a5fa">latexonline.cc에서 열기 ↗</a>';
-      toast('CORS 오류: 외부 서비스 접근 불가', 'err');
+      response = await fetch(endpoint, { method: 'POST', body: form });
+    } catch (e) {
+      if (!COMPILE_PROXY) {
+        dot.className = 'status-dot err';
+        stxt.innerHTML = 'CORS 오류 — Cloudflare Worker 프록시를 설정하세요 '
+          + '(<a href="https://github.com/' + location.hostname.replace('.github.io','') + '/'
+          + location.pathname.split('/').filter(Boolean)[0]
+          + '/blob/main/cloudflare-worker.js" target="_blank" rel="noopener" style="color:#60a5fa">cloudflare-worker.js 참조 ↗</a>)';
+        toast('CORS 오류: cloudflare-worker.js 참조', 'err');
+      } else {
+        dot.className = 'status-dot err';
+        stxt.textContent = '프록시 연결 실패: ' + endpoint;
+        toast('프록시 연결 실패', 'err');
+      }
       return;
     }
 
@@ -774,15 +753,8 @@ async function runCompile() {
       throw new Error('컴파일 실패 — ' + log.slice(0, 200));
     }
 
-    stxt.textContent = 'PDF 렌더링 중…';
+    stxt.textContent = 'SVG 렌더링 중…';
     const pdfBuf = await response.arrayBuffer();
-
-    // ── PDF blob URL (for PDF preview & download) ──────────
-    if (compiledPdf) URL.revokeObjectURL(compiledPdf);
-    const pdfBlob = new Blob([pdfBuf], { type: 'application/pdf' });
-    compiledPdf = URL.createObjectURL(pdfBlob);
-    const editPdfFrame = document.getElementById('edit-pdf-frame');
-    editPdfFrame.src = compiledPdf;
 
     // ── PNG rendering → SVG wrapper ───────────────────────
     const { dataUrl, w, h } = await pdfFirstPageToPng(pdfBuf);
@@ -799,21 +771,14 @@ async function runCompile() {
     img.src = dataUrl; img.alt = 'Compiled output';
     canvas.appendChild(img);
 
-    // ── Show toggle + download buttons ───────────────────
-    document.getElementById('preview-toggle').style.display = 'flex';
-    const dlSvg  = document.getElementById('ab-dl-svg');
-    const dlPdfE = document.getElementById('ab-dl-pdf-e');
-    dlSvg.href   = svgUrl;  dlSvg.download  = current.name + '.svg';  dlSvg.style.display  = 'flex';
-    dlPdfE.href  = compiledPdf; dlPdfE.download = current.name + '.pdf'; dlPdfE.style.display = 'flex';
-    document.getElementById('ab-sep-dl').style.display   = 'flex';
-    document.getElementById('ab-dl-label').style.display = 'flex';
-
-    // Keep current preview mode, stay on whichever tab is active
-    switchPreview(previewMode);
+    // ── Show SVG download button ──────────────────────────
+    const dlSvg = document.getElementById('ab-dl-svg');
+    dlSvg.href = svgUrl; dlSvg.download = current.name + '.svg';
+    dlSvg.style.display = 'flex';
 
     dot.className = 'status-dot ok';
     stxt.textContent = '완료 — ' + new Date().toLocaleTimeString('ko-KR');
-    toast('컴파일 성공! PDF · SVG 다운로드 가능합니다', 'ok');
+    toast('컴파일 성공! SVG 다운로드 가능합니다', 'ok');
 
   } catch (err) {
     dot.className = 'status-dot err';
