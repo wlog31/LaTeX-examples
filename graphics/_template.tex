@@ -1,0 +1,27 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[3D]
+  \coordinate (O) at (0,0,0);
+  \coordinate (A) at (5,12,0);
+  \coordinate (B) at (1.15,0,0);
+  \coordinate (C) at (0,2.15,2.25);
+
+  \fill[teal!25] (A)--(B)--(C)--cycle;
+  \draw (A)--(B)--(C)--cycle;
+
+  \draw[-stealth] (O) -- (5.5,0,0) node[below left] {$x$};
+  \draw[-stealth] (O) -- (0,12.5,0) node[above] {$y$};
+  \draw[-stealth] (O) -- (0,0,4) node[left] {$z$};
+
+  \node[above left] at (O) {$\mathrm{O}$};
+  \node[below right] at (A) {$\mathrm{A}(5,\,12,\,0)$};
+  \node[above left] at (B) {$\mathrm{B}$};
+  \node[above right] at (C) {$\mathrm{C}$};
+\end{tikzpicture}
+
+\end{document}
+
