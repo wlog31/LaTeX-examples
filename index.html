@@ -447,7 +447,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 let manifest    = null;   // loaded from files.json
 let current     = null;   // currently selected file entry
 let editor      = null;   // CodeMirror instance
-let compiledSvg = null;   // { dataUrl, svgBlobUrl } from last compile
+let compiledSvg = null;   // { dataUrl, svgUrl }
+let compiledPdf = null;   // PDF blob URL
+let previewMode = 'svg';  // 'svg' | 'pdf'
 
 /* ════════════════════════════════════════════════════════════
    LOAD MANIFEST
