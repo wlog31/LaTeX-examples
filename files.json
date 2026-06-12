@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-12T03:45:46.888619+00:00",
+  "folders": {
+    "graphics": [
+      {
+        "name": "_template",
+        "tex": "graphics/_template.tex",
+        "pdf": "graphics/_template.pdf",
+        "svg": null
+      }
+    ],
+    "documents": [],
+    "preambles": [
+      {
+        "name": "preamble_tikz",
+        "tex": "preambles/preamble_tikz.tex",
+        "pdf": null,
+        "svg": null
+      }
+    ]
+  }
+}

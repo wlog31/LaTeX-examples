@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaTeX Examples</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/latex.min.js"></script>
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+/* ── App shell ── */
+#app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #f0f4f8; }
+
+/* ── Header ── */
+header {
+  background: #0f172a;
+  color: white;
+  padding: 0 1.25rem;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 1px solid #1e293b;
+  z-index: 10;
+}
+.hd-left { display: flex; align-items: center; gap: 10px; }
+.hd-title { font-size: 1rem; font-weight: 600; letter-spacing: 0.01em; color: #f1f5f9; }
+.hd-badge {
+  background: #1d4ed8; color: #bfdbfe;
+  font-size: 0.65rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 9999px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.hd-right { display: flex; align-items: center; gap: 1rem; }
+.hd-link {
+  color: #94a3b8; text-decoration: none;
+  font-size: 0.82rem; display: flex; align-items: center; gap: 5px;
+  transition: color 0.15s;
+}
+.hd-link:hover { color: #f1f5f9; }
+
+/* ── Body layout ── */
+.body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 232px;
+  background: #1a2234;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-right: 1px solid #243044;
+  transition: width 0.2s ease;
+}
+.sidebar.collapsed { width: 0; }
+.sidebar-top {
+  padding: 0.65rem 1rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #475569;
+  border-bottom: 1px solid #243044;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.sidebar-scroll { overflow-y: auto; flex: 1; }
+.sidebar-scroll::-webkit-scrollbar { width: 5px; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+.folder-section { border-bottom: 1px solid #243044; }
+.folder-hdr {
+  padding: 0.55rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #7c8ea6;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+.folder-hdr:hover { background: #1e2d45; color: #cbd5e1; }
+.fold-arrow { margin-left: auto; font-size: 0.65rem; transition: transform 0.18s; }
+.folder-section.closed .fold-arrow { transform: rotate(-90deg); }
+.folder-section.closed .file-list { display: none; }
+
+.file-list { list-style: none; }
+.file-item {
+  padding: 0.42rem 1rem 0.42rem 1.8rem;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: #7c8ea6;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.file-item:hover { background: #1e2d45; color: #cbd5e1; }
+.file-item.active {
+  background: #1c3461;
+  color: #93c5fd;
+  border-left: 3px solid #3b82f6;
+  padding-left: calc(1.8rem - 3px);
+}
+.file-badges { display: flex; gap: 3px; margin-left: auto; flex-shrink: 0; }
+.badge { font-size: 0.58rem; padding: 1px 4px; border-radius: 3px; font-weight: 700; }
+.badge-pdf { background: #7f1d1d; color: #fca5a5; }
+.badge-svg { background: #14532d; color: #86efac; }
+.sidebar-empty { padding: 0.4rem 1rem 0.4rem 1.8rem; font-size: 0.75rem; color: #374151; font-style: italic; }
+
+/* ── Main area ── */
+.main { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+
+/* ── Welcome ── */
+#welcome {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 2rem; text-align: center;
+}
+.wc-inner { max-width: 440px; }
+.wc-icon { font-size: 3.5rem; margin-bottom: 1rem; line-height: 1; }
+.wc-title { font-size: 1.4rem; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; }
+.wc-desc { color: #64748b; font-size: 0.88rem; line-height: 1.65; }
+.wc-meta { margin-top: 1.5rem; font-size: 0.74rem; color: #94a3b8; min-height: 1.2em; }
+
+/* ── Viewer ── */
+#viewer { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+#viewer.visible { display: flex; }
+.viewer-hdr {
+  padding: 0.6rem 1.25rem;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.breadcrumb { font-size: 0.82rem; color: #64748b; }
+.breadcrumb b { color: #1e293b; font-weight: 600; }
+.sidebar-toggle {
+  background: none; border: none; cursor: pointer;
+  color: #64748b; font-size: 1rem; padding: 2px 6px;
+  border-radius: 4px; transition: background 0.12s;
+}
+.sidebar-toggle:hover { background: #f1f5f9; color: #1e293b; }
+
+/* ── Tabs ── */
+.tab-bar {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 1.25rem;
+  display: flex;
+  flex-shrink: 0;
+}
+.tab-btn {
+  padding: 0.6rem 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #64748b;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.14s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.tab-btn:hover:not(:disabled) { color: #2563eb; }
+.tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+.tab-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── Tab panels ── */
+.panels { flex: 1; overflow: hidden; position: relative; }
+.panel { display: none; height: 100%; flex-direction: column; overflow: hidden; }
+.panel.active { display: flex; }
+
+/* code panel */
+.code-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.45rem 0.9rem;
+  background: #21252b;
+  border-bottom: 1px solid #181a1f;
+  flex-shrink: 0;
+}
+.code-lang { font-size: 0.72rem; color: #4b5263; font-family: monospace; }
+.copy-btn {
+  font-size: 0.72rem; color: #abb2bf;
+  background: #2c313c; border: none;
+  padding: 3px 9px; border-radius: 4px;
+  cursor: pointer; transition: all 0.13s;
+}
+.copy-btn:hover { background: #3e4451; color: #dcdfe4; }
+#code-wrap { flex: 1; overflow: auto; }
+#code-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+#code-wrap::-webkit-scrollbar-thumb { background: #3a3f4b; border-radius: 3px; }
+#code-wrap pre { margin: 0; border-radius: 0; min-height: 100%; }
+#code-wrap code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace !important;
+  font-size: 0.84rem !important;
+  line-height: 1.65 !important;
+}
+
+/* PDF panel */
+#pdf-iframe { width: 100%; height: 100%; border: none; background: #525659; }
+.panel-msg {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; color: #94a3b8; font-size: 0.88rem; text-align: center; padding: 2rem;
+}
+.panel-msg-icon { font-size: 2.5rem; }
+
+/* SVG panel */
+#svg-panel { background: #f8fafc; }
+.svg-toolbar {
+  padding: 0.45rem 1rem;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex; align-items: center;
+  gap: 8px; font-size: 0.78rem; color: #64748b;
+  flex-shrink: 0;
+}
+.svg-status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%; background: #94a3b8; flex-shrink: 0;
+}
+.svg-status-dot.ok { background: #22c55e; }
+#svg-canvas {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem; overflow: auto;
+  background: repeating-conic-gradient(#e5e7eb 0% 25%, #f9fafb 0% 50%) 0 0 / 20px 20px;
+}
+#svg-canvas svg, #svg-canvas img {
+  max-width: 100%; height: auto;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.15));
+  background: white;
+  border-radius: 6px;
+}
+
+/* ── Download bar ── */
+.dl-bar {
+  padding: 0.65rem 1.25rem;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  display: flex; align-items: center; gap: 7px;
+  flex-shrink: 0;
+}
+.dl-label { font-size: 0.76rem; color: #64748b; }
+.dl-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 11px; border-radius: 5px;
+  font-size: 0.76rem; font-weight: 500;
+  text-decoration: none; border: 1px solid;
+  transition: filter 0.12s;
+}
+.dl-btn:hover { filter: brightness(0.93); }
+.dl-tex { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
+.dl-pdf { color: #b91c1c; border-color: #fecaca; background: #fff1f2; }
+.dl-svg { color: #15803d; border-color: #bbf7d0; background: #f0fdf4; }
+.dl-btn.hidden { display: none; }
+
+/* ── Mobile ── */
+@media (max-width: 700px) {
+  .sidebar { position: fixed; top: 50px; bottom: 0; left: 0; z-index: 50; }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+  .sidebar:not(.collapsed) { width: 232px; box-shadow: 4px 0 16px rgba(0,0,0,0.4); }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <header>
+    <div class="hd-left">
+      <span class="hd-title">📐 LaTeX Examples</span>
+      <span class="hd-badge">LaTeX</span>
+    </div>
+    <div class="hd-right">
+      <a class="hd-link" id="gh-link" href="#" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+            0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+            -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+            .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+            -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27
+            .68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
+            .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48
+            0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        GitHub
+      </a>
+    </div>
+  </header>
+
+  <!-- Body -->
+  <div class="body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">파일 탐색기</div>
+      <div class="sidebar-scroll" id="sidebar-content"></div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+
+      <!-- Welcome -->
+      <div id="welcome">
+        <div class="wc-inner">
+          <div class="wc-icon">📐</div>
+          <div class="wc-title">LaTeX Examples</div>
+          <div class="wc-desc">사이드바에서 파일을 선택하면 TeX 소스, PDF, SVG를 확인하고 다운로드할 수 있습니다.</div>
+          <div class="wc-meta" id="wc-meta">파일 목록을 불러오는 중…</div>
+        </div>
+      </div>
+
+      <!-- Viewer -->
+      <div id="viewer">
+        <div class="viewer-hdr">
+          <div class="breadcrumb" id="breadcrumb"></div>
+          <button class="sidebar-toggle" id="sidebar-toggle" title="사이드바 토글">☰</button>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="tex">📝 TeX 코드</button>
+          <button class="tab-btn" data-tab="pdf" id="btn-pdf">📄 PDF</button>
+          <button class="tab-btn" data-tab="svg" id="btn-svg">🖼 SVG</button>
+        </div>
+        <div class="panels">
+          <!-- TeX code -->
+          <div class="panel active" id="panel-tex">
+            <div class="code-toolbar">
+              <span class="code-lang">latex</span>
+              <button class="copy-btn" id="copy-btn">복사</button>
+            </div>
+            <div id="code-wrap">
+              <pre><code class="language-latex" id="code-el"></code></pre>
+            </div>
+          </div>
+          <!-- PDF -->
+          <div class="panel" id="panel-pdf">
+            <iframe id="pdf-iframe" title="PDF 뷰어"></iframe>
+          </div>
+          <!-- SVG -->
+          <div class="panel" id="panel-svg">
+            <div class="svg-toolbar">
+              <span class="svg-status-dot" id="svg-dot"></span>
+              <span id="svg-label">SVG 미리보기</span>
+            </div>
+            <div id="svg-canvas"></div>
+          </div>
+        </div>
+        <div class="dl-bar">
+          <span class="dl-label">다운로드:</span>
+          <a class="dl-btn dl-tex" id="dl-tex" href="#" download>⬇ .tex</a>
+          <a class="dl-btn dl-pdf hidden" id="dl-pdf" href="#" download>⬇ .pdf</a>
+          <a class="dl-btn dl-svg hidden" id="dl-svg" href="#" download>⬇ .svg</a>
+        </div>
+      </div>
+
+    </div><!-- /.main -->
+  </div><!-- /.body -->
+</div><!-- /#app -->
+
+<script>
+/* ────────────────────────────────────────────
+   GitHub link auto-detect
+──────────────────────────────────────────── */
+(function () {
+  const h = location.hostname;
+  if (h.endsWith('.github.io')) {
+    const user = h.replace('.github.io', '');
+    const repo = location.pathname.split('/').filter(Boolean)[0] || '';
+    const url = repo ? `https://github.com/${user}/${repo}` : `https://github.com/${user}`;
+    document.getElementById('gh-link').href = url;
+  }
+})();
+
+/* ────────────────────────────────────────────
+   State
+──────────────────────────────────────────── */
+let manifest = null;
+let current = null;   // current entry object
+
+/* ────────────────────────────────────────────
+   Bootstrap
+──────────────────────────────────────────── */
+async function init() {
+  try {
+    const r = await fetch('files.json');
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    manifest = await r.json();
+    renderSidebar();
+    const meta = document.getElementById('wc-meta');
+    if (manifest.generated_at) {
+      const d = new Date(manifest.generated_at);
+      meta.textContent = `마지막 빌드: ${d.toLocaleString('ko-KR')}`;
+    } else {
+      meta.textContent = '';
+    }
+    // Auto-open first file
+    const first = Object.entries(manifest.folders)
+      .flatMap(([folder, files]) => files.map(f => ({ folder, ...f })))
+      .find(Boolean);
+    if (first) openFile(first.folder, first.name);
+  } catch (e) {
+    console.warn('files.json 로드 실패:', e);
+    document.getElementById('wc-meta').innerHTML =
+      `<span style="color:#f87171">⚠ files.json 없음 — CI 워크플로를 먼저 실행해 주세요.</span>`;
+    // Fallback: try GitHub API
+    loadFromGitHubAPI();
+  }
+}
+
+/* ────────────────────────────────────────────
+   GitHub API fallback (no files.json yet)
+──────────────────────────────────────────── */
+async function loadFromGitHubAPI() {
+  const h = location.hostname;
+  if (!h.endsWith('.github.io')) return;
+  const user = h.replace('.github.io', '');
+  const repo = location.pathname.split('/').filter(Boolean)[0];
+  if (!repo) return;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${user}/${repo}/git/trees/HEAD?recursive=1`);
+    const data = await r.json();
+    if (!data.tree) return;
+    const FOLDERS = ['graphics', 'documents', 'preambles'];
+    const folders = Object.fromEntries(FOLDERS.map(f => [f, []]));
+    for (const item of data.tree) {
+      const parts = item.path.split('/');
+      if (parts.length !== 2) continue;
+      const [folder, file] = parts;
+      if (!FOLDERS.includes(folder)) continue;
+      if (!file.endsWith('.tex')) continue;
+      const name = file.replace(/\.tex$/, '');
+      const hasPdf = data.tree.some(t => t.path === `${folder}/${name}.pdf`);
+      const hasSvg = data.tree.some(t => t.path === `${folder}/${name}.svg`);
+      folders[folder].push({
+        name,
+        tex: `${folder}/${name}.tex`,
+        pdf: hasPdf ? `${folder}/${name}.pdf` : null,
+        svg: hasSvg ? `${folder}/${name}.svg` : null,
+      });
+    }
+    manifest = { folders };
+    renderSidebar();
+    document.getElementById('wc-meta').textContent = '※ GitHub API에서 파일 목록을 불러왔습니다.';
+  } catch { /* silent */ }
+}
+
+/* ────────────────────────────────────────────
+   Sidebar rendering
+──────────────────────────────────────────── */
+const FOLDER_META = {
+  graphics:  { icon: '🎨', label: 'graphics',  desc: 'TikZ / standalone' },
+  documents: { icon: '📄', label: 'documents', desc: '완성 문서'          },
+  preambles: { icon: '📦', label: 'preambles', desc: '공유 프리앰블'       },
+};
+
+function renderSidebar() {
+  const container = document.getElementById('sidebar-content');
+  container.innerHTML = '';
+  for (const [folder, meta] of Object.entries(FOLDER_META)) {
+    const files = manifest?.folders?.[folder] ?? [];
+    const sec = document.createElement('div');
+    sec.className = 'folder-section';
+    sec.id = `sec-${folder}`;
+    sec.innerHTML = `
+      <div class="folder-hdr" onclick="toggleFolder('${folder}')">
+        <span>${meta.icon}</span>
+        <span>${meta.label}</span>
+        <span class="fold-arrow">▾</span>
+      </div>
+      <ul class="file-list" id="list-${folder}">
+        ${files.length === 0
+          ? `<li class="sidebar-empty">비어 있음</li>`
+          : files.map(f => `
+            <li class="file-item" id="fi-${folder}-${CSS.escape(f.name)}"
+                onclick="openFile('${folder}','${f.name}')">
+              <span>📄</span>
+              <span>${f.name}</span>
+              <span class="file-badges">
+                ${f.pdf ? '<span class="badge badge-pdf">pdf</span>' : ''}
+                ${f.svg ? '<span class="badge badge-svg">svg</span>' : ''}
+              </span>
+            </li>`).join('')}
+      </ul>`;
+    container.appendChild(sec);
+  }
+}
+
+function toggleFolder(folder) {
+  document.getElementById(`sec-${folder}`)?.classList.toggle('closed');
+}
+
+/* ────────────────────────────────────────────
+   Open file
+──────────────────────────────────────────── */
+async function openFile(folder, name) {
+  if (!manifest) return;
+  const entry = manifest.folders[folder]?.find(f => f.name === name);
+  if (!entry) return;
+  current = entry;
+
+  // Active item
+  document.querySelectorAll('.file-item.active').forEach(el => el.classList.remove('active'));
+  document.getElementById(`fi-${folder}-${CSS.escape(name)}`)?.classList.add('active');
+
+  // Show viewer
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('viewer').classList.add('visible');
+
+  // Breadcrumb
+  document.getElementById('breadcrumb').innerHTML =
+    `<span style="color:#94a3b8">${folder} /</span> <b>${name}.tex</b>`;
+
+  // Tab availability
+  const btnPdf = document.getElementById('btn-pdf');
+  const btnSvg = document.getElementById('btn-svg');
+  btnPdf.disabled = !entry.pdf;
+  btnSvg.disabled = !entry.svg;
+
+  // Download links
+  const dlTex = document.getElementById('dl-tex');
+  const dlPdf = document.getElementById('dl-pdf');
+  const dlSvg = document.getElementById('dl-svg');
+  dlTex.href = entry.tex; dlTex.download = `${name}.tex`;
+  if (entry.pdf) {
+    dlPdf.href = entry.pdf; dlPdf.download = `${name}.pdf`;
+    dlPdf.classList.remove('hidden');
+  } else dlPdf.classList.add('hidden');
+  if (entry.svg) {
+    dlSvg.href = entry.svg; dlSvg.download = `${name}.svg`;
+    dlSvg.classList.remove('hidden');
+  } else dlSvg.classList.add('hidden');
+
+  // Switch to TeX tab first
+  switchTab('tex');
+
+  // ── Load TeX ──────────────────────────────
+  const codeEl = document.getElementById('code-el');
+  codeEl.textContent = '불러오는 중…';
+  try {
+    const text = await fetch(entry.tex).then(r => {
+      if (!r.ok) throw new Error(r.status);
+      return r.text();
+    });
+    codeEl.textContent = text;
+    codeEl.removeAttribute('data-highlighted');
+    hljs.highlightElement(codeEl);
+  } catch {
+    codeEl.textContent = '// 파일을 불러올 수 없습니다.';
+  }
+
+  // ── Load PDF ─────────────────────────────
+  if (entry.pdf) {
+    document.getElementById('pdf-iframe').src = entry.pdf;
+  } else {
+    document.getElementById('pdf-iframe').src = 'about:blank';
+    if (document.getElementById('panel-pdf').classList.contains('active')) {
+      switchTab('tex');
+    }
+  }
+
+  // ── Load SVG ─────────────────────────────
+  const canvas = document.getElementById('svg-canvas');
+  const dot    = document.getElementById('svg-dot');
+  const label  = document.getElementById('svg-label');
+  if (entry.svg) {
+    canvas.innerHTML = `<div style="color:#94a3b8;font-size:.85rem">SVG 불러오는 중…</div>`;
+    dot.classList.remove('ok');
+    label.textContent = 'SVG 불러오는 중…';
+    try {
+      const svgText = await fetch(entry.svg).then(r => {
+        if (!r.ok) throw new Error(r.status);
+        return r.text();
+      });
+      canvas.innerHTML = svgText;
+      const svgEl = canvas.querySelector('svg');
+      if (svgEl) {
+        svgEl.style.maxWidth = '100%';
+        svgEl.style.height = 'auto';
+        svgEl.removeAttribute('width');
+        svgEl.removeAttribute('height');
+      }
+      dot.classList.add('ok');
+      label.textContent = '컴파일된 SVG (CI 빌드)';
+    } catch {
+      canvas.innerHTML = `
+        <div class="panel-msg">
+          <div class="panel-msg-icon">⚠️</div>
+          <div>SVG 파일을 불러올 수 없습니다.</div>
+        </div>`;
+      dot.classList.remove('ok');
+      label.textContent = '불러오기 실패';
+    }
+  } else {
+    canvas.innerHTML = `
+      <div class="panel-msg">
+        <div class="panel-msg-icon">📦</div>
+        <div>이 파일에는 SVG가 없습니다.<br>
+        <small style="color:#94a3b8">프리앰블 파일이거나 아직 CI가 실행되지 않았습니다.</small></div>
+      </div>`;
+    dot.classList.remove('ok');
+    label.textContent = 'SVG 없음';
+    if (document.getElementById('panel-svg').classList.contains('active')) {
+      switchTab('tex');
+    }
+  }
+}
+
+/* ────────────────────────────────────────────
+   Tab switching
+──────────────────────────────────────────── */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+  document.getElementById(`panel-${tab}`)?.classList.add('active');
+}
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => { if (!btn.disabled) switchTab(btn.dataset.tab); });
+});
+
+/* ────────────────────────────────────────────
+   Copy button
+──────────────────────────────────────────── */
+document.getElementById('copy-btn').addEventListener('click', async () => {
+  const text = document.getElementById('code-el').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ 복사됨';
+    setTimeout(() => { btn.textContent = '복사'; }, 1600);
+  } catch { /* ignore */ }
+});
+
+/* ────────────────────────────────────────────
+   Sidebar toggle
+──────────────────────────────────────────── */
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+});
+
+/* ────────────────────────────────────────────
+   Start
+──────────────────────────────────────────── */
+init();
+</script>
+</body>
+</html>

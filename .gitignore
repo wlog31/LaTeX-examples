@@ -1,0 +1,34 @@
+# ── LaTeX 빌드 부산물 ──────────────────────────
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.glg
+*.glo
+*.gls
+*.idx
+*.ilg
+*.ind
+*.ist
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.synctex(busy)
+*.toc
+*.xdv
+*.nav
+*.snm
+*.vrb
+
+# ── CI 배포 디렉토리 ───────────────────────────
+_site/
+
+# ── 편집기 / OS ────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
