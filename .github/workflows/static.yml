@@ -1,148 +1,43 @@
-# ──────────────────────────────────────────────────────────────────────────────
-# build-and-deploy.yml
-#
-# main 브랜치에 push할 때마다:
-#   1. XeLaTeX으로 graphics/, documents/ 의 .tex 파일을 컴파일 → .pdf
-#   2. pdf2svg 로 .pdf → .svg 변환
-#   3. generate_manifest.py 로 files.json 생성
-#   4. _site/ 디렉토리 구성 후 GitHub Pages 배포
-#
-# 【최초 1회 설정】
-#   GitHub 저장소 > Settings > Pages > Source 를 "GitHub Actions" 로 변경
-# ──────────────────────────────────────────────────────────────────────────────
-name: Build LaTeX & Deploy
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
 
 on:
+  # Runs on pushes targeting the default branch
   push:
-    branches: [main]
-  workflow_dispatch:      # 수동 실행 가능
+    branches: ["main"]
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: pages
+  group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # ── 1. Build ────────────────────────────────────────────────────────────────
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # TeXLive 설치 (필요한 컬렉션만 선택해 빠르게)
-      - name: Setup TeXLive
-        uses: teatimeguest/setup-texlive-action@v3
-        with:
-          packages: |
-            collection-xetex
-            collection-latexrecommended
-            collection-langkorean
-            collection-pictures
-            collection-science
-            standalone
-            pgfplots
-            xcolor
-            multicol
-            caption
-            float
-            fontspec
-            tikz-cd
-
-      # PDF → SVG 변환 도구
-      - name: Install pdf2svg
-        run: sudo apt-get install -y pdf2svg
-
-      # ── graphics/ 컴파일 ────────────────────────────────────────────────────
-      - name: Compile graphics
-        run: |
-          shopt -s nullglob
-          for texfile in graphics/*.tex; do
-            name=$(basename "$texfile" .tex)
-            echo "▶ graphics/$name.tex"
-            (cd graphics && xelatex -interaction=nonstopmode -halt-on-error "$name.tex" 2>&1 \
-              | tail -5) \
-              && echo "  ✓ PDF 생성" \
-              || echo "  ✗ 컴파일 실패 (계속 진행)"
-            if [ -f "graphics/$name.pdf" ]; then
-              pdf2svg "graphics/$name.pdf" "graphics/$name.svg" \
-                && echo "  ✓ SVG 변환" \
-                || echo "  ✗ SVG 변환 실패"
-            fi
-          done
-
-      # ── documents/ 컴파일 ──────────────────────────────────────────────────
-      - name: Compile documents
-        run: |
-          shopt -s nullglob
-          for texfile in documents/*.tex; do
-            name=$(basename "$texfile" .tex)
-            echo "▶ documents/$name.tex"
-            (cd documents && xelatex -interaction=nonstopmode -halt-on-error "$name.tex" 2>&1 \
-              | tail -5) \
-              && echo "  ✓ PDF 생성" \
-              || echo "  ✗ 컴파일 실패 (계속 진행)"
-            # 문서는 1페이지만 SVG 미리보기
-            if [ -f "documents/$name.pdf" ]; then
-              # pdf2svg 는 "file.pdf out.svg 1" 으로 특정 페이지 지정
-              pdf2svg "documents/$name.pdf" "documents/$name.svg" 1 \
-                && echo "  ✓ SVG 변환 (p.1)" \
-                || echo "  ✗ SVG 변환 실패"
-            fi
-          done
-
-      # ── 빌드 부산물 삭제 (tex/pdf/svg만 남김) ────────────────────────────
-      - name: Clean build artifacts
-        run: |
-          find graphics documents preambles -maxdepth 1 \
-            ! -name "*.tex" ! -name "*.pdf" ! -name "*.svg" \
-            -type f -delete 2>/dev/null || true
-
-      # ── 매니페스트 생성 ────────────────────────────────────────────────────
-      - name: Generate files.json
-        run: python3 generate_manifest.py
-
-      # ── _site/ 구성 ────────────────────────────────────────────────────────
-      - name: Prepare _site
-        run: |
-          mkdir -p _site
-
-          # 뷰어 파일
-          cp index.html _site/
-          cp files.json _site/
-
-          # 각 폴더의 .tex / .pdf / .svg 복사 (빌드 부산물 제외)
-          for folder in graphics documents preambles; do
-            mkdir -p "_site/$folder"
-            find "$folder" -maxdepth 1 \
-              \( -name "*.tex" -o -name "*.pdf" -o -name "*.svg" \) \
-              -exec cp {} "_site/$folder/" \; 2>/dev/null || true
-          done
-
-          echo "──── _site 구조 ────"
-          find _site -type f | sort
-
-      # ── Pages 아티팩트 업로드 ──────────────────────────────────────────────
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-  # ── 2. Deploy ───────────────────────────────────────────────────────────────
+  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
