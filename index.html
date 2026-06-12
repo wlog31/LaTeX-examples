@@ -645,7 +645,14 @@ function enterEditMode() {
     </div>`;
   document.getElementById('status-dot').className = 'status-dot';
   document.getElementById('status-text').textContent = '컴파일 대기 중';
-  document.getElementById('ab-dl-svg').style.display = 'none';
+  document.getElementById('ab-dl-svg').style.display   = 'none';
+  document.getElementById('ab-dl-pdf-e').style.display = 'none';
+  document.getElementById('ab-sep-dl').style.display   = 'none';
+  document.getElementById('ab-dl-label').style.display = 'none';
+  document.getElementById('preview-toggle').style.display = 'none';
+  document.getElementById('edit-pdf-frame').style.display = 'none';
+  previewMode = 'svg';
+  switchPreview('svg');
   updateEditTexDownload();
 
   document.getElementById('hd-badge').textContent = '편집';
