@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/latex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -195,13 +196,33 @@ header {
   flex-shrink: 0;
 }
 .code-lang { font-size: 0.72rem; color: #4b5263; font-family: monospace; }
-.copy-btn {
+.copy-btn, .action-btn {
   font-size: 0.72rem; color: #abb2bf;
   background: #2c313c; border: none;
   padding: 3px 9px; border-radius: 4px;
   cursor: pointer; transition: all 0.13s;
+  white-space: nowrap;
 }
-.copy-btn:hover { background: #3e4451; color: #dcdfe4; }
+.copy-btn:hover, .action-btn:hover { background: #3e4451; color: #dcdfe4; }
+.action-btn.primary { background: #1a3a5c; color: #60a5fa; }
+.action-btn.primary:hover { background: #1e4a7a; color: #93c5fd; }
+.action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.code-toolbar-right { display: flex; gap: 5px; align-items: center; }
+
+/* compile toast */
+.compile-toast {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: #21252b; border-top: 1px solid #3e4451;
+  padding: 0.5rem 1rem; font-size: 0.78rem;
+  display: flex; align-items: center; gap: 8px;
+  z-index: 5; color: #abb2bf;
+}
+.compile-toast.error { border-top-color: #7f1d1d; color: #fca5a5; }
+.compile-toast.success { border-top-color: #14532d; color: #86efac; }
+.compile-toast a { color: inherit; }
+.toast-close { margin-left: auto; cursor: pointer; opacity: 0.6; background: none; border: none; color: inherit; font-size: 1rem; }
+.spin { display: inline-block; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 #code-wrap { flex: 1; overflow: auto; }
 #code-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
 #code-wrap::-webkit-scrollbar-thumb { background: #3a3f4b; border-radius: 3px; }
@@ -343,7 +364,11 @@ header {
           <div class="panel active" id="panel-tex">
             <div class="code-toolbar">
               <span class="code-lang">latex</span>
-              <button class="copy-btn" id="copy-btn">복사</button>
+              <div class="code-toolbar-right">
+                <button class="action-btn" id="view-svg-btn" title="CI가 생성한 SVG를 봅니다">▶ SVG 보기</button>
+                <button class="action-btn primary" id="compile-btn" title="texlive.net으로 즉석 컴파일합니다">⚡ 온라인 컴파일</button>
+                <button class="copy-btn" id="copy-btn">복사</button>
+              </div>
             </div>
             <div id="code-wrap">
               <pre><code class="language-latex" id="code-el"></code></pre>
@@ -634,6 +659,164 @@ function switchTab(tab) {
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => { if (!btn.disabled) switchTab(btn.dataset.tab); });
 });
+
+/* ────────────────────────────────────────────
+   View SVG button (CI pre-compiled)
+──────────────────────────────────────────── */
+document.getElementById('view-svg-btn').addEventListener('click', () => {
+  if (!current) return;
+  if (current.svg) {
+    switchTab('svg');
+  } else {
+    showToast('이 파일의 SVG가 아직 없습니다. CI 빌드 후 생성됩니다.', 'info');
+  }
+});
+
+/* ────────────────────────────────────────────
+   Online compile (texlive.net → PDF.js → PNG-in-SVG)
+──────────────────────────────────────────── */
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/** Resolve a LaTeX \input path relative to the base folder */
+function resolveTexPath(baseFolder, inputPath) {
+  const parts = [...baseFolder.split('/'), ...inputPath.split('/')];
+  const out = [];
+  for (const p of parts) {
+    if (p === '..') out.pop();
+    else if (p && p !== '.') out.push(p);
+  }
+  return out.join('/');
+}
+
+/** Replace all \input{...} directives with their file content */
+async function inlineInputs(texContent, baseFolder) {
+  const regex = /\\input\s*\{([^}]+)\}/g;
+  const matches = [...texContent.matchAll(regex)];
+  let result = texContent;
+  for (const m of matches) {
+    const path = resolveTexPath(baseFolder, m[1].trim());
+    try {
+      const txt = await fetch(path).then(r => {
+        if (!r.ok) throw new Error(r.status);
+        return r.text();
+      });
+      result = result.replace(m[0], txt);
+    } catch { /* leave as-is */ }
+  }
+  return result;
+}
+
+/** Render first page of an ArrayBuffer PDF → PNG data-URL via PDF.js */
+async function pdfToPng(pdfBuffer, scale = 2.5) {
+  const pdf = await pdfjsLib.getDocument({ data: pdfBuffer }).promise;
+  const page = await pdf.getPage(1);
+  const vp = page.getViewport({ scale });
+  const canvas = document.createElement('canvas');
+  canvas.width = vp.width; canvas.height = vp.height;
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+  return { dataUrl: canvas.toDataURL('image/png'), width: vp.width, height: vp.height };
+}
+
+document.getElementById('compile-btn').addEventListener('click', async () => {
+  if (!current) return;
+  const btn = document.getElementById('compile-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin">⏳</span> 컴파일 중…';
+  dismissToast();
+
+  try {
+    const rawTex   = document.getElementById('code-el').textContent;
+    const baseFolder = current.tex.split('/').slice(0, -1).join('/');
+    const inlinedTex = await inlineInputs(rawTex, baseFolder);
+
+    // POST to texlive.net
+    const form = new FormData();
+    form.append('filecontents[]', inlinedTex);
+    form.append('filename[]', 'document.tex');
+    form.append('engine', 'xelatex');
+    form.append('return', 'pdf');
+
+    let response;
+    try {
+      response = await fetch('https://texlive.net/cgi-bin/latexcgi', {
+        method: 'POST', body: form,
+      });
+    } catch (corsErr) {
+      // CORS fallback: open latexonline.cc in new tab
+      const fileUrl = encodeURIComponent(`${location.origin}${location.pathname.replace(/\/$/, '')}/${current.tex}`);
+      showToast(
+        `CORS 오류 — <a href="https://latexonline.cc/compile?url=${fileUrl}&command=xelatex" target="_blank" rel="noopener">latexonline.cc에서 열기 ↗</a>`,
+        'error'
+      );
+      return;
+    }
+
+    if (!response.ok) throw new Error(`서버 오류 ${response.status}`);
+    const ct = response.headers.get('content-type') || '';
+    if (!ct.includes('pdf')) {
+      const errText = await response.text();
+      throw new Error('컴파일 실패 — 로그: ' + errText.slice(0, 200));
+    }
+
+    const pdfBuf  = await response.arrayBuffer();
+    const { dataUrl, width, height } = await pdfToPng(pdfBuf);
+
+    // SVG wrapper for download
+    const svgContent = [
+      `<svg xmlns="http://www.w3.org/2000/svg"`,
+      ` xmlns:xlink="http://www.w3.org/1999/xlink"`,
+      ` width="${width}" height="${height}">`,
+      `<image xlink:href="${dataUrl}" width="${width}" height="${height}"/>`,
+      `</svg>`,
+    ].join('');
+    const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const svgUrl  = URL.createObjectURL(svgBlob);
+
+    // Show in SVG panel
+    const canvas = document.getElementById('svg-canvas');
+    canvas.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = dataUrl;
+    img.style.cssText = 'max-width:100%;border-radius:6px;background:white;';
+    canvas.appendChild(img);
+
+    // Enable SVG download (online-compiled)
+    const dlSvg = document.getElementById('dl-svg');
+    dlSvg.href = svgUrl;
+    dlSvg.download = `${current.name}_online.svg`;
+    dlSvg.classList.remove('hidden');
+
+    document.getElementById('svg-dot').classList.add('ok');
+    document.getElementById('svg-label').textContent = '온라인 컴파일 결과 (XeLaTeX @ texlive.net)';
+
+    switchTab('svg');
+    showToast('✓ 컴파일 완료 — 벡터 SVG는 CI 빌드 시 생성됩니다', 'success');
+
+  } catch (err) {
+    showToast('✗ ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚡ 온라인 컴파일';
+  }
+});
+
+/* ────────────────────────────────────────────
+   Toast helper
+──────────────────────────────────────────── */
+function showToast(html, type = 'info') {
+  dismissToast();
+  const panel = document.getElementById('panel-tex');
+  const t = document.createElement('div');
+  t.className = `compile-toast ${type}`;
+  t.id = 'compile-toast';
+  t.innerHTML = `<span>${html}</span>
+    <button class="toast-close" onclick="dismissToast()">✕</button>`;
+  panel.appendChild(t);
+}
+function dismissToast() {
+  document.getElementById('compile-toast')?.remove();
+}
 
 /* ────────────────────────────────────────────
    Copy button
