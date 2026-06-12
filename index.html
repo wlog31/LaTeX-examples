@@ -4,455 +4,459 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LaTeX Examples</title>
+
+<!-- highlight.js — view mode syntax highlight -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/latex.min.js"></script>
+
+<!-- CodeMirror 5 — edit mode code editor -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
+
+<!-- PDF.js — render compiled PDF to PNG -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <style>
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+html, body { height: 100%; overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 
 /* ── App shell ── */
-#app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #f0f4f8; }
+#app { display: flex; flex-direction: column; height: 100vh; background: #0f172a; }
 
-/* ── Header ── */
+/* ════════════════════════════════════════
+   HEADER
+════════════════════════════════════════ */
 header {
+  height: 48px; flex-shrink: 0;
   background: #0f172a;
-  color: white;
-  padding: 0 1.25rem;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
   border-bottom: 1px solid #1e293b;
-  z-index: 10;
+  display: flex; align-items: center;
+  padding: 0 1rem; gap: 10px;
+  z-index: 20;
 }
-.hd-left { display: flex; align-items: center; gap: 10px; }
-.hd-title { font-size: 1rem; font-weight: 600; letter-spacing: 0.01em; color: #f1f5f9; }
-.hd-badge {
-  background: #1d4ed8; color: #bfdbfe;
-  font-size: 0.65rem; font-weight: 700;
+.hd-logo { font-weight: 700; color: #f1f5f9; font-size: 0.95rem; white-space: nowrap; }
+.hd-sep  { color: #334155; font-size: 1.2rem; }
+.hd-file { color: #64748b; font-size: 0.82rem; }
+.hd-mode-badge {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
   padding: 2px 7px; border-radius: 9999px;
-  letter-spacing: 0.06em; text-transform: uppercase;
 }
-.hd-right { display: flex; align-items: center; gap: 1rem; }
-.hd-link {
-  color: #94a3b8; text-decoration: none;
-  font-size: 0.82rem; display: flex; align-items: center; gap: 5px;
-  transition: color 0.15s;
+.hd-mode-badge.view { background: #1e3a5f; color: #60a5fa; }
+.hd-mode-badge.edit { background: #1a3a20; color: #4ade80; }
+.hd-space { flex: 1; }
+.hd-btn {
+  height: 30px; padding: 0 12px; border-radius: 6px; border: none; cursor: pointer;
+  font-size: 0.78rem; font-weight: 600; white-space: nowrap; transition: filter 0.12s;
+  display: flex; align-items: center; gap: 5px;
 }
-.hd-link:hover { color: #f1f5f9; }
+.hd-btn:hover { filter: brightness(1.12); }
+.hd-btn.use   { background: #2563eb; color: white; }
+.hd-btn.back  { background: #374151; color: #d1d5db; display: none; }
+.hd-btn.compile { background: #059669; color: white; display: none; }
+.hd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+#app.edit-mode .hd-btn.use     { display: none; }
+#app.edit-mode .hd-btn.back    { display: flex; }
+#app.edit-mode .hd-btn.compile { display: flex; }
+.hd-gh {
+  color: #475569; text-decoration: none; display: flex; align-items: center;
+  gap: 5px; font-size: 0.78rem; transition: color 0.12s; padding: 0 4px;
+}
+.hd-gh:hover { color: #94a3b8; }
 
-/* ── Body layout ── */
-.body { display: flex; flex: 1; overflow: hidden; }
+/* ════════════════════════════════════════
+   BODY = sidebar + split workspace
+════════════════════════════════════════ */
+.body { flex: 1; display: flex; overflow: hidden; }
 
 /* ── Sidebar ── */
 .sidebar {
-  width: 232px;
-  background: #1a2234;
-  color: #94a3b8;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  flex-shrink: 0;
-  border-right: 1px solid #243044;
-  transition: width 0.2s ease;
+  width: 210px; flex-shrink: 0;
+  background: #111827; border-right: 1px solid #1e293b;
+  display: flex; flex-direction: column; overflow: hidden;
+  transition: width 0.2s;
 }
-.sidebar.collapsed { width: 0; }
-.sidebar-top {
-  padding: 0.65rem 1rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #475569;
-  border-bottom: 1px solid #243044;
-  flex-shrink: 0;
-  white-space: nowrap;
+.sidebar.hidden { width: 0; }
+.sb-head {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #374151; border-bottom: 1px solid #1e293b; flex-shrink: 0;
 }
-.sidebar-scroll { overflow-y: auto; flex: 1; }
-.sidebar-scroll::-webkit-scrollbar { width: 5px; }
-.sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+.sb-scroll { overflow-y: auto; flex: 1; }
+.sb-scroll::-webkit-scrollbar { width: 4px; }
+.sb-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }
 
-.folder-section { border-bottom: 1px solid #243044; }
+.folder { border-bottom: 1px solid #1e293b; }
 .folder-hdr {
-  padding: 0.55rem 1rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #7c8ea6;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.12s;
-  white-space: nowrap;
+  padding: 0.5rem 0.9rem; display: flex; align-items: center; gap: 6px;
+  font-size: 0.76rem; font-weight: 600; color: #6b7280;
+  cursor: pointer; user-select: none; transition: background 0.1s;
 }
-.folder-hdr:hover { background: #1e2d45; color: #cbd5e1; }
-.fold-arrow { margin-left: auto; font-size: 0.65rem; transition: transform 0.18s; }
-.folder-section.closed .fold-arrow { transform: rotate(-90deg); }
-.folder-section.closed .file-list { display: none; }
-
+.folder-hdr:hover { background: #1a2234; color: #9ca3af; }
+.folder-arrow { margin-left: auto; font-size: 0.6rem; transition: transform 0.18s; }
+.folder.closed .folder-arrow { transform: rotate(-90deg); }
+.folder.closed .file-list { display: none; }
 .file-list { list-style: none; }
 .file-item {
-  padding: 0.42rem 1rem 0.42rem 1.8rem;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  color: #7c8ea6;
-  transition: background 0.12s, color 0.12s;
-  white-space: nowrap;
+  padding: 0.38rem 0.9rem 0.38rem 1.6rem;
+  font-size: 0.78rem; color: #6b7280;
+  display: flex; align-items: center; gap: 5px;
+  cursor: pointer; transition: all 0.1s; white-space: nowrap; overflow: hidden;
 }
-.file-item:hover { background: #1e2d45; color: #cbd5e1; }
-.file-item.active {
-  background: #1c3461;
-  color: #93c5fd;
-  border-left: 3px solid #3b82f6;
-  padding-left: calc(1.8rem - 3px);
+.file-item:hover  { background: #1a2234; color: #9ca3af; }
+.file-item.active { background: #1c3461; color: #93c5fd; border-left: 2px solid #3b82f6; padding-left: calc(1.6rem - 2px); }
+.fi-badges { display: flex; gap: 2px; margin-left: auto; flex-shrink: 0; }
+.fi-badge  { font-size: 0.56rem; padding: 1px 3px; border-radius: 2px; font-weight: 700; }
+.fi-badge.pdf { background: #7f1d1d; color: #fca5a5; }
+.fi-badge.svg { background: #14532d; color: #86efac; }
+.sb-empty  { padding: 0.35rem 0.9rem 0.35rem 1.6rem; font-size: 0.72rem; color: #374151; font-style: italic; }
+
+/* ════════════════════════════════════════
+   SPLIT WORKSPACE
+════════════════════════════════════════ */
+.workspace {
+  flex: 1; display: flex; overflow: hidden; position: relative;
 }
-.file-badges { display: flex; gap: 3px; margin-left: auto; flex-shrink: 0; }
-.badge { font-size: 0.58rem; padding: 1px 4px; border-radius: 3px; font-weight: 700; }
-.badge-pdf { background: #7f1d1d; color: #fca5a5; }
-.badge-svg { background: #14532d; color: #86efac; }
-.sidebar-empty { padding: 0.4rem 1rem 0.4rem 1.8rem; font-size: 0.75rem; color: #374151; font-style: italic; }
-
-/* ── Main area ── */
-.main { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
-
-/* ── Welcome ── */
-#welcome {
+/* Welcome screen */
+.welcome {
   flex: 1; display: flex; align-items: center; justify-content: center;
-  padding: 2rem; text-align: center;
+  text-align: center; padding: 2rem; background: #0f172a;
 }
-.wc-inner { max-width: 440px; }
-.wc-icon { font-size: 3.5rem; margin-bottom: 1rem; line-height: 1; }
-.wc-title { font-size: 1.4rem; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; }
-.wc-desc { color: #64748b; font-size: 0.88rem; line-height: 1.65; }
-.wc-meta { margin-top: 1.5rem; font-size: 0.74rem; color: #94a3b8; min-height: 1.2em; }
+.wc-box { max-width: 380px; }
+.wc-icon  { font-size: 3rem; margin-bottom: 0.75rem; }
+.wc-title { font-size: 1.25rem; font-weight: 600; color: #f1f5f9; margin-bottom: 0.4rem; }
+.wc-desc  { color: #475569; font-size: 0.85rem; line-height: 1.6; }
+.wc-meta  { margin-top: 1.25rem; font-size: 0.72rem; color: #374151; }
 
-/* ── Viewer ── */
-#viewer { flex: 1; display: none; flex-direction: column; overflow: hidden; }
-#viewer.visible { display: flex; }
-.viewer-hdr {
-  padding: 0.6rem 1.25rem;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-.breadcrumb { font-size: 0.82rem; color: #64748b; }
-.breadcrumb b { color: #1e293b; font-weight: 600; }
-.sidebar-toggle {
-  background: none; border: none; cursor: pointer;
-  color: #64748b; font-size: 1rem; padding: 2px 6px;
-  border-radius: 4px; transition: background 0.12s;
-}
-.sidebar-toggle:hover { background: #f1f5f9; color: #1e293b; }
+/* Pane container (replaces welcome when file selected) */
+.panes { flex: 1; display: none; overflow: hidden; }
+.panes.visible { display: flex; }
 
-/* ── Tabs ── */
-.tab-bar {
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 1.25rem;
-  display: flex;
-  flex-shrink: 0;
+/* Left pane */
+.pane-left {
+  flex: 0 0 50%; min-width: 200px; max-width: 80%;
+  display: flex; flex-direction: column; overflow: hidden;
+  background: #282c34; position: relative;
 }
-.tab-btn {
-  padding: 0.6rem 1.1rem;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: #64748b;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.14s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
+.pane-label {
+  padding: 0.35rem 0.9rem; font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: #21252b; color: #4b5263; border-bottom: 1px solid #181a1f;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
 }
-.tab-btn:hover:not(:disabled) { color: #2563eb; }
-.tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
-.tab-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+/* View: highlight.js code block */
+#code-view {
+  flex: 1; overflow: auto; display: block;
+}
+#code-view::-webkit-scrollbar { width: 6px; height: 6px; }
+#code-view::-webkit-scrollbar-thumb { background: #3a3f4b; border-radius: 3px; }
+#code-view pre { margin: 0; border-radius: 0; min-height: 100%; }
+#code-view code {
+  font-family: 'JetBrains Mono','Fira Code',Consolas,monospace !important;
+  font-size: 0.83rem !important; line-height: 1.65 !important;
+}
+/* Edit: CodeMirror */
+#cm-wrap {
+  flex: 1; overflow: hidden; display: none;
+}
+#cm-wrap .CodeMirror {
+  height: 100%; font-family: 'JetBrains Mono','Fira Code',Consolas,monospace;
+  font-size: 0.83rem; line-height: 1.65;
+}
+#app.edit-mode #code-view { display: none; }
+#app.edit-mode #cm-wrap   { display: block; }
 
-/* ── Tab panels ── */
-.panels { flex: 1; overflow: hidden; position: relative; }
-.panel { display: none; height: 100%; flex-direction: column; overflow: hidden; }
-.panel.active { display: flex; }
-
-/* code panel */
-.code-toolbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.45rem 0.9rem;
-  background: #21252b;
-  border-bottom: 1px solid #181a1f;
-  flex-shrink: 0;
+/* Drag handle */
+.drag-handle {
+  width: 5px; flex-shrink: 0; cursor: col-resize;
+  background: #1e293b; transition: background 0.15s;
+  position: relative; z-index: 5;
 }
-.code-lang { font-size: 0.72rem; color: #4b5263; font-family: monospace; }
-.copy-btn, .action-btn {
-  font-size: 0.72rem; color: #abb2bf;
-  background: #2c313c; border: none;
-  padding: 3px 9px; border-radius: 4px;
-  cursor: pointer; transition: all 0.13s;
-  white-space: nowrap;
-}
-.copy-btn:hover, .action-btn:hover { background: #3e4451; color: #dcdfe4; }
-.action-btn.primary { background: #1a3a5c; color: #60a5fa; }
-.action-btn.primary:hover { background: #1e4a7a; color: #93c5fd; }
-.action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.code-toolbar-right { display: flex; gap: 5px; align-items: center; }
-
-/* compile toast */
-.compile-toast {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  background: #21252b; border-top: 1px solid #3e4451;
-  padding: 0.5rem 1rem; font-size: 0.78rem;
-  display: flex; align-items: center; gap: 8px;
-  z-index: 5; color: #abb2bf;
-}
-.compile-toast.error { border-top-color: #7f1d1d; color: #fca5a5; }
-.compile-toast.success { border-top-color: #14532d; color: #86efac; }
-.compile-toast a { color: inherit; }
-.toast-close { margin-left: auto; cursor: pointer; opacity: 0.6; background: none; border: none; color: inherit; font-size: 1rem; }
-.spin { display: inline-block; animation: spin 0.7s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-#code-wrap { flex: 1; overflow: auto; }
-#code-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
-#code-wrap::-webkit-scrollbar-thumb { background: #3a3f4b; border-radius: 3px; }
-#code-wrap pre { margin: 0; border-radius: 0; min-height: 100%; }
-#code-wrap code {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace !important;
-  font-size: 0.84rem !important;
-  line-height: 1.65 !important;
+.drag-handle:hover, .drag-handle.dragging { background: #3b82f6; }
+.drag-handle::after {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 3px; height: 30px; border-radius: 2px; background: #334155;
 }
 
-/* PDF panel */
-#pdf-iframe { width: 100%; height: 100%; border: none; background: #525659; }
-.panel-msg {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 10px; color: #94a3b8; font-size: 0.88rem; text-align: center; padding: 2rem;
+/* Right pane */
+.pane-right {
+  flex: 1; min-width: 200px; display: flex; flex-direction: column; overflow: hidden;
+  background: #f8fafc; position: relative;
 }
-.panel-msg-icon { font-size: 2.5rem; }
-
-/* SVG panel */
-#svg-panel { background: #f8fafc; }
-.svg-toolbar {
-  padding: 0.45rem 1rem;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex; align-items: center;
-  gap: 8px; font-size: 0.78rem; color: #64748b;
-  flex-shrink: 0;
+/* View: PDF iframe */
+#pdf-view { flex: 1; border: none; background: #525659; display: block; }
+/* Edit: SVG canvas */
+#svg-view {
+  flex: 1; display: none; flex-direction: column; overflow: hidden;
 }
-.svg-status-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%; background: #94a3b8; flex-shrink: 0;
+.svg-status-bar {
+  padding: 0.35rem 0.9rem; font-size: 0.72rem; background: white;
+  border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;
+  gap: 6px; color: #64748b; flex-shrink: 0;
 }
-.svg-status-dot.ok { background: #22c55e; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; flex-shrink: 0; }
+.status-dot.ok  { background: #22c55e; }
+.status-dot.err { background: #ef4444; }
+.status-dot.spin-dot { animation: spin 0.7s linear infinite; }
 #svg-canvas {
-  flex: 1;
-  display: flex; align-items: center; justify-content: center;
+  flex: 1; display: flex; align-items: center; justify-content: center;
   padding: 1.5rem; overflow: auto;
   background: repeating-conic-gradient(#e5e7eb 0% 25%, #f9fafb 0% 50%) 0 0 / 20px 20px;
 }
-#svg-canvas svg, #svg-canvas img {
+#svg-canvas img, #svg-canvas svg {
   max-width: 100%; height: auto;
-  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.15));
-  background: white;
-  border-radius: 6px;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,.18));
+  background: white; border-radius: 6px;
 }
+.svg-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; color: #94a3b8; text-align: center; font-size: 0.88rem;
+}
+.svg-placeholder-icon { font-size: 2.5rem; }
+#app.edit-mode #pdf-view { display: none; }
+#app.edit-mode #svg-view { display: flex; }
+/* right pane bg in edit mode */
+#app.edit-mode .pane-right { background: #f8fafc; }
 
-/* ── Download bar ── */
-.dl-bar {
-  padding: 0.65rem 1.25rem;
-  background: white;
-  border-top: 1px solid #e2e8f0;
+/* ════════════════════════════════════════
+   ACTION BAR
+════════════════════════════════════════ */
+.action-bar {
+  height: 48px; flex-shrink: 0;
+  background: #0f172a; border-top: 1px solid #1e293b;
   display: flex; align-items: center; gap: 7px;
-  flex-shrink: 0;
+  padding: 0 1rem; overflow-x: auto;
 }
-.dl-label { font-size: 0.76rem; color: #64748b; }
-.dl-btn {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 4px 11px; border-radius: 5px;
-  font-size: 0.76rem; font-weight: 500;
-  text-decoration: none; border: 1px solid;
-  transition: filter 0.12s;
-}
-.dl-btn:hover { filter: brightness(0.93); }
-.dl-tex { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
-.dl-pdf { color: #b91c1c; border-color: #fecaca; background: #fff1f2; }
-.dl-svg { color: #15803d; border-color: #bbf7d0; background: #f0fdf4; }
-.dl-btn.hidden { display: none; }
+.action-bar::-webkit-scrollbar { height: 3px; }
+.action-bar::-webkit-scrollbar-thumb { background: #1e293b; }
 
-/* ── Mobile ── */
-@media (max-width: 700px) {
-  .sidebar { position: fixed; top: 50px; bottom: 0; left: 0; z-index: 50; }
-  .sidebar.collapsed { width: 0; overflow: hidden; }
-  .sidebar:not(.collapsed) { width: 232px; box-shadow: 4px 0 16px rgba(0,0,0,0.4); }
+.ab-sep { width: 1px; height: 20px; background: #1e293b; flex-shrink: 0; margin: 0 2px; }
+.ab-label { font-size: 0.72rem; color: #374151; white-space: nowrap; }
+
+.ab-btn {
+  height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid;
+  font-size: 0.76rem; font-weight: 500; cursor: pointer; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px; text-decoration: none;
+  transition: filter 0.12s; flex-shrink: 0;
+}
+.ab-btn:hover:not(:disabled) { filter: brightness(1.12); }
+.ab-btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+/* Colours */
+.ab-use     { background: #1d4ed8; border-color: #1d4ed8; color: white; }
+.ab-back    { background: transparent; border-color: #374151; color: #9ca3af; }
+.ab-copy    { background: transparent; border-color: #374151; color: #9ca3af; }
+.ab-tex     { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+.ab-pdf     { background: #fff1f2; border-color: #fecaca; color: #b91c1c; }
+.ab-svg     { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+
+/* View-only / edit-only visibility */
+.view-only { }
+.edit-only { display: none; }
+#app.edit-mode .view-only { display: none; }
+#app.edit-mode .edit-only { display: flex; }
+
+/* ════════════════════════════════════════
+   UTILITIES
+════════════════════════════════════════ */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin 0.7s linear infinite; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+  background: #1e293b; color: #e2e8f0; border: 1px solid #334155;
+  padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.82rem;
+  z-index: 100; white-space: nowrap; pointer-events: none;
+  animation: toast-in 0.2s ease;
+}
+.toast.err { background: #450a0a; border-color: #7f1d1d; color: #fca5a5; }
+.toast.ok  { background: #052e16; border-color: #14532d; color: #86efac; }
+@keyframes toast-in { from { opacity:0; transform:translateX(-50%) translateY(6px); } }
+
+/* No-file placeholders */
+.pane-msg {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; color: #94a3b8; text-align: center; padding: 2rem;
+  flex-direction: column; gap: 8px;
 }
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- Header -->
+  <!-- ═══ HEADER ═══ -->
   <header>
-    <div class="hd-left">
-      <span class="hd-title">📐 LaTeX Examples</span>
-      <span class="hd-badge">LaTeX</span>
-    </div>
-    <div class="hd-right">
-      <a class="hd-link" id="gh-link" href="#" target="_blank" rel="noopener">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
-            0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
-            -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
-            .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
-            -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27
-            .68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
-            .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48
-            0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-        </svg>
-        GitHub
-      </a>
-    </div>
+    <span class="hd-logo">📐 LaTeX Examples</span>
+    <span class="hd-sep">|</span>
+    <span class="hd-file" id="hd-file">파일을 선택하세요</span>
+    <span class="hd-mode-badge view" id="hd-badge">보기</span>
+    <div class="hd-space"></div>
+    <button class="hd-btn back" id="btn-back">← 돌아가기</button>
+    <button class="hd-btn compile" id="btn-compile">⚡ 컴파일</button>
+    <button class="hd-btn use" id="btn-use" disabled>사용하기 →</button>
+    <a class="hd-gh" id="gh-link" href="#" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+          0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+          -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+          .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+          -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27
+          .68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
+          .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48
+          0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+      GitHub
+    </a>
   </header>
 
-  <!-- Body -->
+  <!-- ═══ BODY ═══ -->
   <div class="body">
 
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-top">파일 탐색기</div>
-      <div class="sidebar-scroll" id="sidebar-content"></div>
+      <div class="sb-head">예제 파일</div>
+      <div class="sb-scroll" id="sb-content"></div>
     </aside>
 
-    <!-- Main -->
-    <div class="main">
+    <!-- Workspace -->
+    <div class="workspace" id="workspace">
 
-      <!-- Welcome -->
-      <div id="welcome">
-        <div class="wc-inner">
+      <!-- Welcome (shown before file is selected) -->
+      <div class="welcome" id="welcome">
+        <div class="wc-box">
           <div class="wc-icon">📐</div>
           <div class="wc-title">LaTeX Examples</div>
-          <div class="wc-desc">사이드바에서 파일을 선택하면 TeX 소스, PDF, SVG를 확인하고 다운로드할 수 있습니다.</div>
-          <div class="wc-meta" id="wc-meta">파일 목록을 불러오는 중…</div>
+          <div class="wc-desc">왼쪽에서 예제를 선택하면 코드와 컴파일 결과를 볼 수 있습니다.<br>
+            <b style="color:#60a5fa">사용하기</b> 버튼으로 코드를 편집하고 SVG로 내보낼 수 있습니다.</div>
+          <div class="wc-meta" id="wc-meta"></div>
         </div>
       </div>
 
-      <!-- Viewer -->
-      <div id="viewer">
-        <div class="viewer-hdr">
-          <div class="breadcrumb" id="breadcrumb"></div>
-          <button class="sidebar-toggle" id="sidebar-toggle" title="사이드바 토글">☰</button>
+      <!-- Split panes (shown after file is selected) -->
+      <div class="panes" id="panes">
+
+        <!-- Left pane: code -->
+        <div class="pane-left" id="pane-left">
+          <div class="pane-label">
+            <span id="left-label">TeX 코드</span>
+          </div>
+          <!-- View mode: read-only highlight.js -->
+          <div id="code-view">
+            <pre><code class="language-latex" id="code-el"></code></pre>
+          </div>
+          <!-- Edit mode: CodeMirror -->
+          <div id="cm-wrap">
+            <div id="cm-container"></div>
+          </div>
         </div>
-        <div class="tab-bar">
-          <button class="tab-btn active" data-tab="tex">📝 TeX 코드</button>
-          <button class="tab-btn" data-tab="pdf" id="btn-pdf">📄 PDF</button>
-          <button class="tab-btn" data-tab="svg" id="btn-svg">🖼 SVG</button>
-        </div>
-        <div class="panels">
-          <!-- TeX code -->
-          <div class="panel active" id="panel-tex">
-            <div class="code-toolbar">
-              <span class="code-lang">latex</span>
-              <div class="code-toolbar-right">
-                <button class="action-btn" id="view-svg-btn" title="CI가 생성한 SVG를 봅니다">▶ SVG 보기</button>
-                <button class="action-btn primary" id="compile-btn" title="texlive.net으로 즉석 컴파일합니다">⚡ 온라인 컴파일</button>
-                <button class="copy-btn" id="copy-btn">복사</button>
+
+        <!-- Drag handle -->
+        <div class="drag-handle" id="drag-handle"></div>
+
+        <!-- Right pane: preview -->
+        <div class="pane-right" id="pane-right">
+          <div class="pane-label">
+            <span id="right-label">미리보기</span>
+          </div>
+          <!-- View mode: PDF -->
+          <iframe id="pdf-view" title="PDF 미리보기"></iframe>
+          <!-- Edit mode: SVG -->
+          <div id="svg-view">
+            <div class="svg-status-bar">
+              <span class="status-dot" id="status-dot"></span>
+              <span id="status-text">⚡ 컴파일 버튼을 눌러 SVG를 생성하세요 (Ctrl+Enter)</span>
+            </div>
+            <div id="svg-canvas">
+              <div class="svg-placeholder">
+                <div class="svg-placeholder-icon">🖼</div>
+                <div>코드를 수정하고 <b>⚡ 컴파일</b>을 눌러보세요</div>
               </div>
             </div>
-            <div id="code-wrap">
-              <pre><code class="language-latex" id="code-el"></code></pre>
-            </div>
-          </div>
-          <!-- PDF -->
-          <div class="panel" id="panel-pdf">
-            <iframe id="pdf-iframe" title="PDF 뷰어"></iframe>
-          </div>
-          <!-- SVG -->
-          <div class="panel" id="panel-svg">
-            <div class="svg-toolbar">
-              <span class="svg-status-dot" id="svg-dot"></span>
-              <span id="svg-label">SVG 미리보기</span>
-            </div>
-            <div id="svg-canvas"></div>
           </div>
         </div>
-        <div class="dl-bar">
-          <span class="dl-label">다운로드:</span>
-          <a class="dl-btn dl-tex" id="dl-tex" href="#" download>⬇ .tex</a>
-          <a class="dl-btn dl-pdf hidden" id="dl-pdf" href="#" download>⬇ .pdf</a>
-          <a class="dl-btn dl-svg hidden" id="dl-svg" href="#" download>⬇ .svg</a>
-        </div>
-      </div>
 
-    </div><!-- /.main -->
+      </div><!-- /.panes -->
+    </div><!-- /.workspace -->
   </div><!-- /.body -->
+
+  <!-- ═══ ACTION BAR ═══ -->
+  <div class="action-bar" id="action-bar">
+
+    <!-- View mode actions -->
+    <span class="ab-label view-only">예제 보기</span>
+    <button class="ab-btn ab-use view-only" id="ab-use" disabled>사용하기 →</button>
+    <span class="ab-sep view-only"></span>
+    <a class="ab-btn ab-tex view-only hidden" id="ab-dl-tex" href="#" download>⬇ .tex</a>
+    <a class="ab-btn ab-pdf view-only hidden" id="ab-dl-pdf" href="#" download>⬇ .pdf</a>
+
+    <!-- Edit mode actions -->
+    <button class="ab-btn ab-back edit-only" id="ab-back">← 돌아가기</button>
+    <span class="ab-sep edit-only"></span>
+    <button class="ab-btn ab-copy edit-only" id="ab-copy">📋 코드 복사</button>
+    <a class="ab-btn ab-tex edit-only" id="ab-dl-tex-e" href="#" download>⬇ .tex</a>
+    <a class="ab-btn ab-svg edit-only" id="ab-dl-svg" href="#" style="display:none">⬇ .svg</a>
+
+  </div>
 </div><!-- /#app -->
 
 <script>
-/* ────────────────────────────────────────────
-   GitHub link auto-detect
-──────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════════ */
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* GitHub link */
 (function () {
   const h = location.hostname;
   if (h.endsWith('.github.io')) {
     const user = h.replace('.github.io', '');
     const repo = location.pathname.split('/').filter(Boolean)[0] || '';
-    const url = repo ? `https://github.com/${user}/${repo}` : `https://github.com/${user}`;
-    document.getElementById('gh-link').href = url;
+    document.getElementById('gh-link').href =
+      repo ? `https://github.com/${user}/${repo}` : `https://github.com/${user}`;
   }
 })();
 
-/* ────────────────────────────────────────────
-   State
-──────────────────────────────────────────── */
-let manifest = null;
-let current = null;   // current entry object
+/* ════════════════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════════════════ */
+let manifest    = null;   // loaded from files.json
+let current     = null;   // currently selected file entry
+let editor      = null;   // CodeMirror instance
+let compiledSvg = null;   // { dataUrl, svgBlobUrl } from last compile
 
-/* ────────────────────────────────────────────
-   Bootstrap
-──────────────────────────────────────────── */
-async function init() {
+/* ════════════════════════════════════════════════════════════
+   LOAD MANIFEST
+════════════════════════════════════════════════════════════ */
+async function boot() {
   try {
     const r = await fetch('files.json');
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     manifest = await r.json();
     renderSidebar();
-    const meta = document.getElementById('wc-meta');
     if (manifest.generated_at) {
       const d = new Date(manifest.generated_at);
-      meta.textContent = `마지막 빌드: ${d.toLocaleString('ko-KR')}`;
-    } else {
-      meta.textContent = '';
+      document.getElementById('wc-meta').textContent = `빌드: ${d.toLocaleString('ko-KR')}`;
     }
     // Auto-open first file
     const first = Object.entries(manifest.folders)
-      .flatMap(([folder, files]) => files.map(f => ({ folder, ...f })))
+      .flatMap(([f, files]) => files.map(e => ({ folder: f, ...e })))
       .find(Boolean);
     if (first) openFile(first.folder, first.name);
-  } catch (e) {
-    console.warn('files.json 로드 실패:', e);
+  } catch {
     document.getElementById('wc-meta').innerHTML =
-      `<span style="color:#f87171">⚠ files.json 없음 — CI 워크플로를 먼저 실행해 주세요.</span>`;
-    // Fallback: try GitHub API
-    loadFromGitHubAPI();
+      '<span style="color:#ef4444">⚠ files.json 없음 — CI를 먼저 실행하세요</span>';
+    tryGitHubAPI();
   }
 }
 
-/* ────────────────────────────────────────────
-   GitHub API fallback (no files.json yet)
-──────────────────────────────────────────── */
-async function loadFromGitHubAPI() {
+async function tryGitHubAPI() {
   const h = location.hostname;
   if (!h.endsWith('.github.io')) return;
   const user = h.replace('.github.io', '');
@@ -468,120 +472,96 @@ async function loadFromGitHubAPI() {
       const parts = item.path.split('/');
       if (parts.length !== 2) continue;
       const [folder, file] = parts;
-      if (!FOLDERS.includes(folder)) continue;
-      if (!file.endsWith('.tex')) continue;
-      const name = file.replace(/\.tex$/, '');
-      const hasPdf = data.tree.some(t => t.path === `${folder}/${name}.pdf`);
-      const hasSvg = data.tree.some(t => t.path === `${folder}/${name}.svg`);
+      if (!FOLDERS.includes(folder) || !file.endsWith('.tex')) continue;
+      const name = file.slice(0, -4);
       folders[folder].push({
-        name,
-        tex: `${folder}/${name}.tex`,
-        pdf: hasPdf ? `${folder}/${name}.pdf` : null,
-        svg: hasSvg ? `${folder}/${name}.svg` : null,
+        name, tex: `${folder}/${name}.tex`,
+        pdf: data.tree.some(t => t.path === `${folder}/${name}.pdf`) ? `${folder}/${name}.pdf` : null,
+        svg: data.tree.some(t => t.path === `${folder}/${name}.svg`) ? `${folder}/${name}.svg` : null,
       });
     }
     manifest = { folders };
     renderSidebar();
-    document.getElementById('wc-meta').textContent = '※ GitHub API에서 파일 목록을 불러왔습니다.';
   } catch { /* silent */ }
 }
 
-/* ────────────────────────────────────────────
-   Sidebar rendering
-──────────────────────────────────────────── */
-const FOLDER_META = {
-  graphics:  { icon: '🎨', label: 'graphics',  desc: 'TikZ / standalone' },
-  documents: { icon: '📄', label: 'documents', desc: '완성 문서'          },
-  preambles: { icon: '📦', label: 'preambles', desc: '공유 프리앰블'       },
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════════════════════ */
+const FOLDERS = {
+  graphics:  { icon: '🎨', label: 'graphics' },
+  documents: { icon: '📄', label: 'documents' },
+  preambles: { icon: '📦', label: 'preambles' },
 };
 
 function renderSidebar() {
-  const container = document.getElementById('sidebar-content');
-  container.innerHTML = '';
-  for (const [folder, meta] of Object.entries(FOLDER_META)) {
-    const files = manifest?.folders?.[folder] ?? [];
+  const root = document.getElementById('sb-content');
+  root.innerHTML = '';
+  for (const [key, meta] of Object.entries(FOLDERS)) {
+    const files = manifest?.folders?.[key] ?? [];
     const sec = document.createElement('div');
-    sec.className = 'folder-section';
-    sec.id = `sec-${folder}`;
+    sec.className = 'folder'; sec.id = `sec-${key}`;
     sec.innerHTML = `
-      <div class="folder-hdr" onclick="toggleFolder('${folder}')">
-        <span>${meta.icon}</span>
-        <span>${meta.label}</span>
-        <span class="fold-arrow">▾</span>
+      <div class="folder-hdr" onclick="toggleFolder('${key}')">
+        <span>${meta.icon}</span><span>${meta.label}</span>
+        <span class="folder-arrow">▾</span>
       </div>
-      <ul class="file-list" id="list-${folder}">
-        ${files.length === 0
-          ? `<li class="sidebar-empty">비어 있음</li>`
-          : files.map(f => `
-            <li class="file-item" id="fi-${folder}-${CSS.escape(f.name)}"
-                onclick="openFile('${folder}','${f.name}')">
+      <ul class="file-list" id="fl-${key}">
+        ${!files.length ? `<li class="sb-empty">비어 있음</li>` :
+          files.map(f => `
+            <li class="file-item" id="fi-${key}-${f.name}"
+                onclick="openFile('${key}','${f.name}')">
               <span>📄</span>
-              <span>${f.name}</span>
-              <span class="file-badges">
-                ${f.pdf ? '<span class="badge badge-pdf">pdf</span>' : ''}
-                ${f.svg ? '<span class="badge badge-svg">svg</span>' : ''}
+              <span style="overflow:hidden;text-overflow:ellipsis">${f.name}</span>
+              <span class="fi-badges">
+                ${f.pdf ? '<span class="fi-badge pdf">pdf</span>' : ''}
+                ${f.svg ? '<span class="fi-badge svg">svg</span>' : ''}
               </span>
             </li>`).join('')}
       </ul>`;
-    container.appendChild(sec);
+    root.appendChild(sec);
   }
 }
 
-function toggleFolder(folder) {
-  document.getElementById(`sec-${folder}`)?.classList.toggle('closed');
+function toggleFolder(key) {
+  document.getElementById(`sec-${key}`)?.classList.toggle('closed');
 }
 
-/* ────────────────────────────────────────────
-   Open file
-──────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════
+   OPEN FILE  (view mode)
+════════════════════════════════════════════════════════════ */
 async function openFile(folder, name) {
   if (!manifest) return;
+  if (isEditMode()) exitEditMode();
+
   const entry = manifest.folders[folder]?.find(f => f.name === name);
   if (!entry) return;
   current = entry;
 
-  // Active item
+  // Sidebar active
   document.querySelectorAll('.file-item.active').forEach(el => el.classList.remove('active'));
-  document.getElementById(`fi-${folder}-${CSS.escape(name)}`)?.classList.add('active');
+  document.getElementById(`fi-${folder}-${name}`)?.classList.add('active');
 
-  // Show viewer
+  // Header
+  document.getElementById('hd-file').textContent = `${folder} / ${name}.tex`;
+  document.getElementById('hd-badge').textContent = '보기';
+  document.getElementById('hd-badge').className = 'hd-mode-badge view';
+  document.getElementById('btn-use').disabled = false;
+
+  // Show panes, hide welcome
   document.getElementById('welcome').style.display = 'none';
-  document.getElementById('viewer').classList.add('visible');
+  document.getElementById('panes').classList.add('visible');
 
-  // Breadcrumb
-  document.getElementById('breadcrumb').innerHTML =
-    `<span style="color:#94a3b8">${folder} /</span> <b>${name}.tex</b>`;
+  // Labels
+  document.getElementById('left-label').textContent = 'TeX 코드';
+  document.getElementById('right-label').textContent = '미리보기 (PDF)';
 
-  // Tab availability
-  const btnPdf = document.getElementById('btn-pdf');
-  const btnSvg = document.getElementById('btn-svg');
-  btnPdf.disabled = !entry.pdf;
-  btnSvg.disabled = !entry.svg;
-
-  // Download links
-  const dlTex = document.getElementById('dl-tex');
-  const dlPdf = document.getElementById('dl-pdf');
-  const dlSvg = document.getElementById('dl-svg');
-  dlTex.href = entry.tex; dlTex.download = `${name}.tex`;
-  if (entry.pdf) {
-    dlPdf.href = entry.pdf; dlPdf.download = `${name}.pdf`;
-    dlPdf.classList.remove('hidden');
-  } else dlPdf.classList.add('hidden');
-  if (entry.svg) {
-    dlSvg.href = entry.svg; dlSvg.download = `${name}.svg`;
-    dlSvg.classList.remove('hidden');
-  } else dlSvg.classList.add('hidden');
-
-  // Switch to TeX tab first
-  switchTab('tex');
-
-  // ── Load TeX ──────────────────────────────
+  // Load TeX source
   const codeEl = document.getElementById('code-el');
   codeEl.textContent = '불러오는 중…';
   try {
     const text = await fetch(entry.tex).then(r => {
-      if (!r.ok) throw new Error(r.status);
-      return r.text();
+      if (!r.ok) throw new Error(r.status); return r.text();
     });
     codeEl.textContent = text;
     codeEl.removeAttribute('data-highlighted');
@@ -590,97 +570,95 @@ async function openFile(folder, name) {
     codeEl.textContent = '// 파일을 불러올 수 없습니다.';
   }
 
-  // ── Load PDF ─────────────────────────────
+  // Load PDF / SVG into right pane
   if (entry.pdf) {
-    document.getElementById('pdf-iframe').src = entry.pdf;
+    document.getElementById('pdf-view').src = entry.pdf;
+  } else if (entry.svg) {
+    document.getElementById('pdf-view').src = entry.svg;
   } else {
-    document.getElementById('pdf-iframe').src = 'about:blank';
-    if (document.getElementById('panel-pdf').classList.contains('active')) {
-      switchTab('tex');
-    }
+    document.getElementById('pdf-view').src = 'about:blank';
   }
 
-  // ── Load SVG ─────────────────────────────
-  const canvas = document.getElementById('svg-canvas');
-  const dot    = document.getElementById('svg-dot');
-  const label  = document.getElementById('svg-label');
-  if (entry.svg) {
-    canvas.innerHTML = `<div style="color:#94a3b8;font-size:.85rem">SVG 불러오는 중…</div>`;
-    dot.classList.remove('ok');
-    label.textContent = 'SVG 불러오는 중…';
-    try {
-      const svgText = await fetch(entry.svg).then(r => {
-        if (!r.ok) throw new Error(r.status);
-        return r.text();
-      });
-      canvas.innerHTML = svgText;
-      const svgEl = canvas.querySelector('svg');
-      if (svgEl) {
-        svgEl.style.maxWidth = '100%';
-        svgEl.style.height = 'auto';
-        svgEl.removeAttribute('width');
-        svgEl.removeAttribute('height');
-      }
-      dot.classList.add('ok');
-      label.textContent = '컴파일된 SVG (CI 빌드)';
-    } catch {
-      canvas.innerHTML = `
-        <div class="panel-msg">
-          <div class="panel-msg-icon">⚠️</div>
-          <div>SVG 파일을 불러올 수 없습니다.</div>
-        </div>`;
-      dot.classList.remove('ok');
-      label.textContent = '불러오기 실패';
-    }
-  } else {
-    canvas.innerHTML = `
-      <div class="panel-msg">
-        <div class="panel-msg-icon">📦</div>
-        <div>이 파일에는 SVG가 없습니다.<br>
-        <small style="color:#94a3b8">프리앰블 파일이거나 아직 CI가 실행되지 않았습니다.</small></div>
-      </div>`;
-    dot.classList.remove('ok');
-    label.textContent = 'SVG 없음';
-    if (document.getElementById('panel-svg').classList.contains('active')) {
-      switchTab('tex');
-    }
-  }
+  // Action bar downloads (view mode)
+  const dlTex = document.getElementById('ab-dl-tex');
+  dlTex.href = entry.tex; dlTex.download = `${name}.tex`;
+  dlTex.style.display = 'flex';
+  const dlPdf = document.getElementById('ab-dl-pdf');
+  if (entry.pdf) {
+    dlPdf.href = entry.pdf; dlPdf.download = `${name}.pdf`;
+    dlPdf.style.display = 'flex';
+  } else dlPdf.style.display = 'none';
+
+  document.getElementById('ab-use').disabled = false;
 }
 
-/* ────────────────────────────────────────────
-   Tab switching
-──────────────────────────────────────────── */
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-  document.getElementById(`panel-${tab}`)?.classList.add('active');
-}
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => { if (!btn.disabled) switchTab(btn.dataset.tab); });
-});
+/* ════════════════════════════════════════════════════════════
+   EDIT MODE
+════════════════════════════════════════════════════════════ */
+function isEditMode() { return document.getElementById('app').classList.contains('edit-mode'); }
 
-/* ────────────────────────────────────────────
-   View SVG button (CI pre-compiled)
-──────────────────────────────────────────── */
-document.getElementById('view-svg-btn').addEventListener('click', () => {
+function enterEditMode() {
   if (!current) return;
-  if (current.svg) {
-    switchTab('svg');
-  } else {
-    showToast('이 파일의 SVG가 아직 없습니다. CI 빌드 후 생성됩니다.', 'info');
+  compiledSvg = null;
+
+  if (!editor) {
+    editor = CodeMirror(document.getElementById('cm-container'), {
+      mode: 'stex', theme: 'material-darker',
+      lineNumbers: true, lineWrapping: false,
+      tabSize: 2, indentWithTabs: false,
+      extraKeys: { 'Ctrl-Enter': () => runCompile(), 'Cmd-Enter': () => runCompile() },
+    });
+    editor.on('change', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(updateEditTexDownload, 500);
+    });
   }
-});
 
-/* ────────────────────────────────────────────
-   Online compile (texlive.net → PDF.js → PNG-in-SVG)
-──────────────────────────────────────────── */
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  editor.setValue(document.getElementById('code-el').textContent);
+  setTimeout(() => editor.refresh(), 50);
 
-/** Resolve a LaTeX \input path relative to the base folder */
-function resolveTexPath(baseFolder, inputPath) {
-  const parts = [...baseFolder.split('/'), ...inputPath.split('/')];
+  document.getElementById('svg-canvas').innerHTML = `
+    <div class="svg-placeholder">
+      <div class="svg-placeholder-icon">🖼</div>
+      <div>코드를 수정하고 <b>⚡ 컴파일</b>을 눌러보세요<br>
+        <small style="color:#6b7280">단축키: Ctrl+Enter</small></div>
+    </div>`;
+  document.getElementById('status-dot').className = 'status-dot';
+  document.getElementById('status-text').textContent = '컴파일 대기 중';
+  document.getElementById('ab-dl-svg').style.display = 'none';
+  updateEditTexDownload();
+
+  document.getElementById('hd-badge').textContent = '편집';
+  document.getElementById('hd-badge').className = 'hd-mode-badge edit';
+  document.getElementById('left-label').textContent = 'TeX 편집기';
+  document.getElementById('right-label').textContent = 'SVG 미리보기';
+  document.getElementById('app').classList.add('edit-mode');
+}
+
+function exitEditMode() {
+  document.getElementById('app').classList.remove('edit-mode');
+  document.getElementById('hd-badge').textContent = '보기';
+  document.getElementById('hd-badge').className = 'hd-mode-badge view';
+  document.getElementById('left-label').textContent = 'TeX 코드';
+  document.getElementById('right-label').textContent = '미리보기 (PDF)';
+  compiledSvg = null;
+}
+
+function updateEditTexDownload() {
+  if (!current || !editor) return;
+  const blob = new Blob([editor.getValue()], { type: 'text/plain' });
+  const a = document.getElementById('ab-dl-tex-e');
+  if (a._prevUrl) URL.revokeObjectURL(a._prevUrl);
+  a._prevUrl = URL.createObjectURL(blob);
+  a.href = a._prevUrl;
+  a.download = `${current.name}.tex`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   COMPILE  (texlive.net -> PDF.js -> PNG-in-SVG)
+════════════════════════════════════════════════════════════ */
+function resolveTexPath(base, rel) {
+  const parts = [...base.split('/'), ...rel.split('/')];
   const out = [];
   for (const p of parts) {
     if (p === '..') out.pop();
@@ -689,159 +667,172 @@ function resolveTexPath(baseFolder, inputPath) {
   return out.join('/');
 }
 
-/** Replace all \input{...} directives with their file content */
-async function inlineInputs(texContent, baseFolder) {
-  const regex = /\\input\s*\{([^}]+)\}/g;
-  const matches = [...texContent.matchAll(regex)];
-  let result = texContent;
-  for (const m of matches) {
+async function inlineInputs(tex, baseFolder) {
+  const re = /\\input\s*\{([^}]+)\}/g;
+  let result = tex;
+  for (const m of [...tex.matchAll(re)]) {
     const path = resolveTexPath(baseFolder, m[1].trim());
     try {
-      const txt = await fetch(path).then(r => {
-        if (!r.ok) throw new Error(r.status);
-        return r.text();
-      });
+      const txt = await fetch(path).then(r => { if (!r.ok) throw 0; return r.text(); });
       result = result.replace(m[0], txt);
     } catch { /* leave as-is */ }
   }
   return result;
 }
 
-/** Render first page of an ArrayBuffer PDF → PNG data-URL via PDF.js */
-async function pdfToPng(pdfBuffer, scale = 2.5) {
-  const pdf = await pdfjsLib.getDocument({ data: pdfBuffer }).promise;
+async function pdfFirstPageToPng(pdfBuf, scale = 2.5) {
+  const pdf  = await pdfjsLib.getDocument({ data: pdfBuf }).promise;
   const page = await pdf.getPage(1);
-  const vp = page.getViewport({ scale });
-  const canvas = document.createElement('canvas');
-  canvas.width = vp.width; canvas.height = vp.height;
-  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-  return { dataUrl: canvas.toDataURL('image/png'), width: vp.width, height: vp.height };
+  const vp   = page.getViewport({ scale });
+  const cvs  = document.createElement('canvas');
+  cvs.width = vp.width; cvs.height = vp.height;
+  await page.render({ canvasContext: cvs.getContext('2d'), viewport: vp }).promise;
+  return { dataUrl: cvs.toDataURL('image/png'), w: vp.width, h: vp.height };
 }
 
-document.getElementById('compile-btn').addEventListener('click', async () => {
-  if (!current) return;
-  const btn = document.getElementById('compile-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin">⏳</span> 컴파일 중…';
-  dismissToast();
+async function runCompile() {
+  if (!current || !isEditMode()) return;
+  const compileBtn = document.getElementById('btn-compile');
+  compileBtn.disabled = true;
+  compileBtn.innerHTML = '<span class="spin">&#9203;</span> 컴파일 중…';
+
+  const dot  = document.getElementById('status-dot');
+  const stxt = document.getElementById('status-text');
+  dot.className = 'status-dot spin-dot';
+  stxt.textContent = 'XeLaTeX 컴파일 중… (수 초 소요)';
 
   try {
-    const rawTex   = document.getElementById('code-el').textContent;
+    const rawTex     = editor.getValue();
     const baseFolder = current.tex.split('/').slice(0, -1).join('/');
-    const inlinedTex = await inlineInputs(rawTex, baseFolder);
 
-    // POST to texlive.net
+    stxt.textContent = '\\input{} 파일 인라인 중…';
+    const inlined = await inlineInputs(rawTex, baseFolder);
+
+    stxt.textContent = 'texlive.net 서버 전송 중…';
     const form = new FormData();
-    form.append('filecontents[]', inlinedTex);
+    form.append('filecontents[]', inlined);
     form.append('filename[]', 'document.tex');
     form.append('engine', 'xelatex');
     form.append('return', 'pdf');
 
     let response;
     try {
-      response = await fetch('https://texlive.net/cgi-bin/latexcgi', {
-        method: 'POST', body: form,
-      });
-    } catch (corsErr) {
-      // CORS fallback: open latexonline.cc in new tab
-      const fileUrl = encodeURIComponent(`${location.origin}${location.pathname.replace(/\/$/, '')}/${current.tex}`);
-      showToast(
-        `CORS 오류 — <a href="https://latexonline.cc/compile?url=${fileUrl}&command=xelatex" target="_blank" rel="noopener">latexonline.cc에서 열기 ↗</a>`,
-        'error'
+      response = await fetch('https://texlive.net/cgi-bin/latexcgi', { method: 'POST', body: form });
+    } catch {
+      const fileUrl = encodeURIComponent(
+        `${location.origin}${location.pathname.replace(/\/$/, '')}/${current.tex}`
       );
+      dot.className = 'status-dot err';
+      stxt.innerHTML = 'CORS 오류 — <a href="https://latexonline.cc/compile?url=' + fileUrl
+        + '&command=xelatex" target="_blank" rel="noopener" style="color:#60a5fa">latexonline.cc에서 열기 ↗</a>';
+      toast('CORS 오류: 외부 서비스 접근 불가', 'err');
       return;
     }
 
-    if (!response.ok) throw new Error(`서버 오류 ${response.status}`);
+    if (!response.ok) throw new Error('서버 오류 ' + response.status);
     const ct = response.headers.get('content-type') || '';
     if (!ct.includes('pdf')) {
-      const errText = await response.text();
-      throw new Error('컴파일 실패 — 로그: ' + errText.slice(0, 200));
+      const log = await response.text();
+      throw new Error('컴파일 실패 — ' + log.slice(0, 200));
     }
 
-    const pdfBuf  = await response.arrayBuffer();
-    const { dataUrl, width, height } = await pdfToPng(pdfBuf);
+    stxt.textContent = 'PDF 렌더링 중…';
+    const pdfBuf = await response.arrayBuffer();
+    const { dataUrl, w, h } = await pdfFirstPageToPng(pdfBuf);
 
-    // SVG wrapper for download
-    const svgContent = [
-      `<svg xmlns="http://www.w3.org/2000/svg"`,
-      ` xmlns:xlink="http://www.w3.org/1999/xlink"`,
-      ` width="${width}" height="${height}">`,
-      `<image xlink:href="${dataUrl}" width="${width}" height="${height}"/>`,
-      `</svg>`,
-    ].join('');
-    const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const svgStr  = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'
+      + w + '" height="' + h + '"><image xlink:href="' + dataUrl + '" width="' + w + '" height="' + h + '"/></svg>';
+    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
     const svgUrl  = URL.createObjectURL(svgBlob);
+    compiledSvg   = { dataUrl, svgUrl };
 
-    // Show in SVG panel
     const canvas = document.getElementById('svg-canvas');
     canvas.innerHTML = '';
     const img = document.createElement('img');
-    img.src = dataUrl;
-    img.style.cssText = 'max-width:100%;border-radius:6px;background:white;';
+    img.src = dataUrl; img.alt = 'Compiled output';
     canvas.appendChild(img);
 
-    // Enable SVG download (online-compiled)
-    const dlSvg = document.getElementById('dl-svg');
-    dlSvg.href = svgUrl;
-    dlSvg.download = `${current.name}_online.svg`;
-    dlSvg.classList.remove('hidden');
+    const dlSvg = document.getElementById('ab-dl-svg');
+    dlSvg.href = svgUrl; dlSvg.download = current.name + '.svg';
+    dlSvg.style.display = 'flex';
 
-    document.getElementById('svg-dot').classList.add('ok');
-    document.getElementById('svg-label').textContent = '온라인 컴파일 결과 (XeLaTeX @ texlive.net)';
-
-    switchTab('svg');
-    showToast('✓ 컴파일 완료 — 벡터 SVG는 CI 빌드 시 생성됩니다', 'success');
+    dot.className = 'status-dot ok';
+    stxt.textContent = '완료 — ' + new Date().toLocaleTimeString('ko-KR');
+    toast('컴파일 성공! SVG 다운로드 가능합니다', 'ok');
 
   } catch (err) {
-    showToast('✗ ' + err.message, 'error');
+    dot.className = 'status-dot err';
+    stxt.textContent = err.message.split('\n')[0];
+    toast(err.message.split('\n')[0], 'err');
   } finally {
-    btn.disabled = false;
-    btn.textContent = '⚡ 온라인 컴파일';
+    compileBtn.disabled = false;
+    compileBtn.innerHTML = '&#9889; 컴파일';
   }
-});
-
-/* ────────────────────────────────────────────
-   Toast helper
-──────────────────────────────────────────── */
-function showToast(html, type = 'info') {
-  dismissToast();
-  const panel = document.getElementById('panel-tex');
-  const t = document.createElement('div');
-  t.className = `compile-toast ${type}`;
-  t.id = 'compile-toast';
-  t.innerHTML = `<span>${html}</span>
-    <button class="toast-close" onclick="dismissToast()">✕</button>`;
-  panel.appendChild(t);
-}
-function dismissToast() {
-  document.getElementById('compile-toast')?.remove();
 }
 
-/* ────────────────────────────────────────────
-   Copy button
-──────────────────────────────────────────── */
-document.getElementById('copy-btn').addEventListener('click', async () => {
-  const text = document.getElementById('code-el').textContent;
+/* ════════════════════════════════════════════════════════════
+   SPLIT PANE DRAG
+════════════════════════════════════════════════════════════ */
+(function () {
+  const handle = document.getElementById('drag-handle');
+  const left   = document.getElementById('pane-left');
+  let dragging  = false;
+  handle.addEventListener('mousedown', e => {
+    dragging = true; handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const r = document.getElementById('panes').getBoundingClientRect();
+    const pct = Math.max(20, Math.min(78, (e.clientX - r.left) / r.width * 100));
+    left.style.flex = '0 0 ' + pct + '%';
+  });
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false; handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    editor?.refresh();
+  });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   BUTTON WIRING
+════════════════════════════════════════════════════════════ */
+let debounceTimer;
+['btn-use', 'ab-use'].forEach(id =>
+  document.getElementById(id).addEventListener('click', enterEditMode));
+['btn-back', 'ab-back'].forEach(id =>
+  document.getElementById(id).addEventListener('click', exitEditMode));
+document.getElementById('btn-compile').addEventListener('click', runCompile);
+document.getElementById('ab-copy').addEventListener('click', async () => {
+  if (!editor) return;
   try {
-    await navigator.clipboard.writeText(text);
-    const btn = document.getElementById('copy-btn');
-    btn.textContent = '✓ 복사됨';
-    setTimeout(() => { btn.textContent = '복사'; }, 1600);
-  } catch { /* ignore */ }
+    await navigator.clipboard.writeText(editor.getValue());
+    toast('코드가 클립보드에 복사되었습니다', 'ok');
+  } catch { toast('복사 실패', 'err'); }
 });
 
-/* ────────────────────────────────────────────
-   Sidebar toggle
-──────────────────────────────────────────── */
-document.getElementById('sidebar-toggle').addEventListener('click', () => {
-  document.getElementById('sidebar').classList.toggle('collapsed');
-});
+/* ════════════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════════════ */
+let toastTimer;
+function toast(msg, type) {
+  document.querySelector('.toast')?.remove();
+  clearTimeout(toastTimer);
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type || '');
+  el.textContent = msg;
+  document.body.appendChild(el);
+  toastTimer = setTimeout(() => el.remove(), 3200);
+}
 
-/* ────────────────────────────────────────────
-   Start
-──────────────────────────────────────────── */
-init();
+/* ════════════════════════════════════════════════════════════
+   BOOT
+════════════════════════════════════════════════════════════ */
+boot();
 </script>
 </body>
 </html>
