@@ -34,28 +34,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # TeXLive 설치 (필요한 컬렉션만 선택해 빠르게)
-      - name: Setup TeXLive
-        uses: teatimeguest/setup-texlive-action@v3
-        with:
-          packages: |
-            collection-xetex
-            collection-latexrecommended
-            collection-langkorean
-            collection-pictures
-            collection-science
-            standalone
-            pgfplots
-            xcolor
-            multicol
-            caption
-            float
-            fontspec
-            tikz-cd
-
-      # PDF → SVG 변환 도구
-      - name: Install pdf2svg
-        run: sudo apt-get install -y pdf2svg
+      # TeXLive + pdf2svg 설치 (apt-get 직접 — 서드파티 Action 없음)
+      - name: Setup TeXLive & pdf2svg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            texlive-xetex \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-lang-cjk \
+            texlive-pictures \
+            texlive-science \
+            texlive-fonts-extra \
+            fonts-nanum \
+            fonts-nanum-coding \
+            fonts-nanum-extra \
+            pdf2svg
 
       # ── graphics/ 컴파일 ────────────────────────────────────────────────────
       - name: Compile graphics
