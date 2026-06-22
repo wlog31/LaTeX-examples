@@ -10,15 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/latex.min.js"></script>
 
-<!-- CodeMirror 5 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
-
-<!-- pako (zlib compression for Kroki URL encoding) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-
 <style>
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -141,13 +132,7 @@ header {
   display: flex; align-items: center; gap: 5px;
 }
 .hd-btn:hover { filter: brightness(1.12); }
-.hd-btn.use     { background: #2563eb; color: white; }
-.hd-btn.back    { background: #374151; color: #d1d5db; display: none; }
-.hd-btn.compile { background: #059669; color: white; display: none; }
 .hd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-#app.edit-mode .hd-btn.use     { display: none; }
-#app.edit-mode .hd-btn.back    { display: flex; }
-#app.edit-mode .hd-btn.compile { display: flex; }
 
 /* Theme toggle */
 .hd-theme {
@@ -257,13 +242,6 @@ header {
   font-family: 'JetBrains Mono','Fira Code',Consolas,monospace !important;
   font-size: 0.83rem !important; line-height: 1.65 !important;
 }
-#cm-wrap { flex: 1; overflow: hidden; display: none; }
-#cm-wrap .CodeMirror {
-  height: 100%; font-family: 'JetBrains Mono','Fira Code',Consolas,monospace;
-  font-size: 0.83rem; line-height: 1.65;
-}
-#app.edit-mode #code-view { display: none; }
-#app.edit-mode #cm-wrap   { display: block; }
 
 /* Drag handle */
 .drag-handle {
@@ -284,34 +262,6 @@ header {
   background: #f8fafc; position: relative;
 }
 #pdf-view { flex: 1; border: none; background: #525659; display: block; }
-#svg-view { flex: 1; display: none; flex-direction: column; overflow: hidden; }
-.svg-status-bar {
-  padding: 0.35rem 0.9rem; font-size: 0.72rem; background: white;
-  border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;
-  gap: 6px; color: #64748b; flex-shrink: 0;
-}
-.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; flex-shrink: 0; }
-.status-dot.ok  { background: #22c55e; }
-.status-dot.err { background: #ef4444; }
-.status-dot.spin-dot { animation: spin 0.7s linear infinite; }
-#svg-canvas {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  padding: 1.5rem; overflow: auto;
-  background: repeating-conic-gradient(#e5e7eb 0% 25%, #f9fafb 0% 50%) 0 0 / 20px 20px;
-}
-#svg-canvas img, #svg-canvas svg {
-  max-width: 100%; height: auto;
-  filter: drop-shadow(0 4px 20px rgba(0,0,0,.18));
-  background: white; border-radius: 6px;
-}
-.svg-placeholder {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 10px; color: #94a3b8; text-align: center; font-size: 0.88rem;
-}
-.svg-placeholder-icon { font-size: 2.5rem; }
-#app.edit-mode #pdf-view  { display: none; }
-#app.edit-mode #svg-view  { display: flex; }
-#app.edit-mode .pane-right { background: #f8fafc; }
 
 /* ════════════════════════════════════════
    ACTION BAR
@@ -338,17 +288,8 @@ header {
 .ab-btn:hover:not(:disabled) { filter: brightness(1.12); }
 .ab-btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
-.ab-use  { background: #1d4ed8; border-color: #1d4ed8; color: white; }
-.ab-back { background: transparent; border-color: var(--ab-ghost-bd); color: var(--ab-ghost-t); }
-.ab-copy { background: transparent; border-color: var(--ab-ghost-bd); color: var(--ab-ghost-t); }
 .ab-tex  { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
 .ab-pdf  { background: #fff1f2; border-color: #fecaca; color: #b91c1c; }
-.ab-svg  { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
-
-.view-only { }
-.edit-only { display: none; }
-#app.edit-mode .view-only { display: none; }
-#app.edit-mode .edit-only { display: flex; }
 
 /* ════════════════════════════════════════
    UTILITIES
@@ -384,9 +325,6 @@ header {
     <span class="hd-file" id="hd-file">파일을 선택하세요</span>
     <span class="hd-mode-badge view" id="hd-badge">보기</span>
     <div class="hd-space"></div>
-    <button class="hd-btn back" id="btn-back">← 돌아가기</button>
-    <button class="hd-btn compile" id="btn-compile">⚡ 컴파일</button>
-    <button class="hd-btn use" id="btn-use" disabled>✏️ SVG 만들기 →</button>
     <button class="hd-theme" id="btn-theme" title="테마 전환">☀️</button>
     <a class="hd-gh" id="gh-link" href="#" target="_blank" rel="noopener">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -420,8 +358,7 @@ header {
         <div class="wc-box">
           <div class="wc-icon">📐</div>
           <div class="wc-title">LaTeX Examples</div>
-          <div class="wc-desc">왼쪽에서 예제를 선택하면 코드와 컴파일 결과를 볼 수 있습니다.<br>
-            <b style="color:#60a5fa">SVG 만들기</b> 버튼으로 코드를 편집하고 SVG로 내보낼 수 있습니다.</div>
+          <div class="wc-desc">왼쪽에서 예제를 선택하면 코드와 컴파일 결과를 볼 수 있습니다.</div>
           <div class="wc-meta" id="wc-meta"></div>
         </div>
       </div>
@@ -437,9 +374,6 @@ header {
           <div id="code-view">
             <pre><code class="language-latex" id="code-el"></code></pre>
           </div>
-          <div id="cm-wrap">
-            <div id="cm-container"></div>
-          </div>
         </div>
 
         <!-- Drag handle -->
@@ -451,18 +385,6 @@ header {
             <span id="right-label">미리보기</span>
           </div>
           <iframe id="pdf-view" title="PDF 미리보기"></iframe>
-          <div id="svg-view">
-            <div class="svg-status-bar">
-              <span class="status-dot" id="status-dot"></span>
-              <span id="status-text">⚡ 컴파일 버튼을 눌러 SVG 미리보기를 생성하세요 (Ctrl+Enter)</span>
-            </div>
-            <div id="svg-canvas">
-              <div class="svg-placeholder">
-                <div class="svg-placeholder-icon">🖼</div>
-                <div>코드를 수정하고 <b>⚡ 컴파일</b>을 눌러보세요</div>
-              </div>
-            </div>
-          </div>
         </div>
 
       </div><!-- /.panes -->
@@ -471,21 +393,9 @@ header {
 
   <!-- ═══ ACTION BAR ═══ -->
   <div class="action-bar" id="action-bar">
-
-    <!-- View mode -->
-    <span class="ab-label view-only">예제 보기</span>
-    <button class="ab-btn ab-use view-only" id="ab-use" disabled title="TikZ 폴더 파일만 SVG로 변환 가능">✏️ SVG 만들기 →</button>
-    <span class="ab-sep view-only"></span>
-    <a class="ab-btn ab-tex view-only hidden" id="ab-dl-tex" href="#" download>⬇ .tex</a>
-    <a class="ab-btn ab-pdf view-only hidden" id="ab-dl-pdf" href="#" download>⬇ .pdf</a>
-
-    <!-- Edit mode -->
-    <button class="ab-btn ab-back edit-only" id="ab-back">← 돌아가기</button>
-    <button class="ab-btn ab-copy edit-only" id="ab-copy">📋 코드 복사</button>
-    <span class="ab-sep edit-only"></span>
-    <a class="ab-btn ab-tex edit-only" id="ab-dl-tex-e" href="#" download>⬇ .tex</a>
-    <a class="ab-btn ab-svg edit-only" id="ab-dl-svg" href="#" download style="display:none">⬇ .svg</a>
-
+    <span class="ab-label">예제 보기</span>
+    <a class="ab-btn ab-tex hidden" id="ab-dl-tex" href="#" download>⬇ .tex</a>
+    <a class="ab-btn ab-pdf hidden" id="ab-dl-pdf" href="#" download>⬇ .pdf</a>
   </div>
 
 </div><!-- /#app -->
@@ -549,17 +459,10 @@ header {
 })();
 
 /* ════════════════════════════════════════════════════════════
-   COMPILE ENDPOINT — Kroki.io (texlive 불필요, 서버/프록시 불필요)
-════════════════════════════════════════════════════════════ */
-const KROKI_ENDPOINT = 'https://kroki.io/tikz/svg/';
-
-/* ════════════════════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════════════════════ */
-let manifest    = null;
-let current     = null;
-let editor      = null;
-let compiledSvg = null;
+let manifest = null;
+let current  = null;
 
 /* ════════════════════════════════════════════════════════════
    LOAD MANIFEST
@@ -619,7 +522,7 @@ async function tryGitHubAPI() {
    SIDEBAR
 ════════════════════════════════════════════════════════════ */
 const FOLDERS = {
-  tikz:      { icon: '✏️', label: 'tikz', editable: true },
+  tikz:      { icon: '✏️', label: 'tikz' },
   documents: { icon: '📄', label: 'documents' },
   preambles: { icon: '📦', label: 'preambles' },
 };
@@ -662,7 +565,6 @@ function toggleFolder(key) {
 ════════════════════════════════════════════════════════════ */
 async function openFile(folder, name) {
   if (!manifest) return;
-  if (isEditMode()) exitEditMode();
 
   const entry = manifest.folders[folder]?.find(f => f.name === name);
   if (!entry) return;
@@ -672,11 +574,6 @@ async function openFile(folder, name) {
   document.getElementById(`fi-${folder}-${name}`)?.classList.add('active');
 
   document.getElementById('hd-file').textContent = `${folder} / ${name}.tex`;
-  document.getElementById('hd-badge').textContent = '보기';
-  document.getElementById('hd-badge').className = 'hd-mode-badge view';
-  const isTikz = (folder === 'tikz');
-  document.getElementById('btn-use').disabled = !isTikz;
-  document.getElementById('ab-use').disabled  = !isTikz;
 
   document.getElementById('welcome').style.display = 'none';
   document.getElementById('panes').classList.add('visible');
@@ -716,171 +613,6 @@ async function openFile(folder, name) {
 }
 
 /* ════════════════════════════════════════════════════════════
-   EDIT MODE
-════════════════════════════════════════════════════════════ */
-function isEditMode() { return document.getElementById('app').classList.contains('edit-mode'); }
-
-function enterEditMode() {
-  if (!current) return;
-  compiledSvg = null;
-
-  if (!editor) {
-    editor = CodeMirror(document.getElementById('cm-container'), {
-      mode: 'stex', theme: 'material-darker',
-      lineNumbers: true, lineWrapping: false,
-      tabSize: 2, indentWithTabs: false,
-      extraKeys: { 'Ctrl-Enter': () => runCompile(), 'Cmd-Enter': () => runCompile() },
-    });
-    editor.on('change', () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(updateEditTexDownload, 500);
-    });
-  }
-
-  editor.setValue(document.getElementById('code-el').textContent);
-  setTimeout(() => editor.refresh(), 50);
-
-  document.getElementById('svg-canvas').innerHTML = `
-    <div class="svg-placeholder">
-      <div class="svg-placeholder-icon">🖼</div>
-      <div>코드를 수정하고 <b>⚡ 컴파일</b>을 눌러보세요<br>
-        <small style="color:#6b7280">단축키: Ctrl+Enter</small></div>
-    </div>`;
-  document.getElementById('status-dot').className = 'status-dot';
-  document.getElementById('status-text').textContent = '컴파일 대기 중';
-  document.getElementById('ab-dl-svg').style.display = 'none';
-  updateEditTexDownload();
-
-  document.getElementById('hd-badge').textContent = '편집';
-  document.getElementById('hd-badge').className = 'hd-mode-badge edit';
-  document.getElementById('left-label').textContent  = 'TeX 편집기';
-  document.getElementById('right-label').textContent = 'SVG 미리보기';
-  document.getElementById('app').classList.add('edit-mode');
-}
-
-function exitEditMode() {
-  document.getElementById('app').classList.remove('edit-mode');
-  document.getElementById('hd-badge').textContent = '보기';
-  document.getElementById('hd-badge').className = 'hd-mode-badge view';
-  document.getElementById('left-label').textContent  = 'TeX 코드';
-  document.getElementById('right-label').textContent = '미리보기 (PDF)';
-  compiledSvg = null;
-}
-
-function updateEditTexDownload() {
-  if (!current || !editor) return;
-  const blob = new Blob([editor.getValue()], { type: 'text/plain' });
-  const a = document.getElementById('ab-dl-tex-e');
-  if (a._prevUrl) URL.revokeObjectURL(a._prevUrl);
-  a._prevUrl = URL.createObjectURL(blob);
-  a.href = a._prevUrl;
-  a.download = `${current.name}.tex`;
-}
-
-/* ════════════════════════════════════════════════════════════
-   COMPILE
-════════════════════════════════════════════════════════════ */
-function resolveTexPath(base, rel) {
-  const parts = [...base.split('/'), ...rel.split('/')];
-  const out = [];
-  for (const p of parts) {
-    if (p === '..') out.pop();
-    else if (p && p !== '.') out.push(p);
-  }
-  return out.join('/');
-}
-
-async function inlineInputs(tex, baseFolder) {
-  const re = /\\input\s*\{([^}]+)\}/g;
-  let result = tex;
-  for (const m of [...tex.matchAll(re)]) {
-    const path = resolveTexPath(baseFolder, m[1].trim());
-    try {
-      const txt = await fetch(path).then(r => { if (!r.ok) throw 0; return r.text(); });
-      result = result.replace(m[0], txt);
-    } catch { /* leave as-is */ }
-  }
-  return result;
-}
-
-function encodeForKroki(text) {
-  const data       = new TextEncoder().encode(text);
-  const compressed = pako.deflate(data, { level: 9 });
-  let binary = '';
-  for (let i = 0; i < compressed.length; i++) binary += String.fromCharCode(compressed[i]);
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_');
-}
-
-function renderSvgIntoCanvas(svgText) {
-  const canvas = document.getElementById('svg-canvas');
-  canvas.innerHTML = svgText;
-  const svgEl = canvas.querySelector('svg');
-  if (!svgEl) {
-    canvas.innerHTML = '<div class="svg-placeholder"><div class="svg-placeholder-icon">⚠</div><div>SVG 파싱 오류</div></div>';
-    return;
-  }
-  if (!svgEl.getAttribute('viewBox')) {
-    const w = parseFloat(svgEl.getAttribute('width') || '0');
-    const h = parseFloat(svgEl.getAttribute('height') || '0');
-    if (w > 0 && h > 0) svgEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
-  }
-}
-
-async function runCompile() {
-  if (!current || !isEditMode()) return;
-  const compileBtn = document.getElementById('btn-compile');
-  compileBtn.disabled = true;
-  compileBtn.innerHTML = '<span class="spin">&#9203;</span> 컴파일 중…';
-
-  const dot  = document.getElementById('status-dot');
-  const stxt = document.getElementById('status-text');
-  dot.className = 'status-dot spin-dot';
-  stxt.textContent = '\\input{} 파일 인라인 중…';
-
-  try {
-    const rawTex     = editor.getValue();
-    const baseFolder = current.tex.split('/').slice(0, -1).join('/');
-    const inlined    = await inlineInputs(rawTex, baseFolder);
-
-    stxt.textContent = 'Kroki.io로 SVG 렌더링 중… (texlive 불필요)';
-    const url = KROKI_ENDPOINT + encodeForKroki(inlined);
-
-    const response = await fetch(url);
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error('컴파일 실패 — ' + errText.slice(0, 300));
-    }
-    const svgText = await response.text();
-    if (!svgText.includes('<svg')) {
-      throw new Error('SVG를 받지 못했습니다: ' + svgText.slice(0, 200));
-    }
-
-    compiledSvg = svgText;
-    renderSvgIntoCanvas(svgText);
-
-    const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
-    const svgUrl  = URL.createObjectURL(svgBlob);
-    const dlSvg = document.getElementById('ab-dl-svg');
-    if (dlSvg._prevUrl) URL.revokeObjectURL(dlSvg._prevUrl);
-    dlSvg._prevUrl = svgUrl;
-    dlSvg.href = svgUrl; dlSvg.download = current.name + '.svg';
-    dlSvg.style.display = 'flex';
-
-    dot.className = 'status-dot ok';
-    stxt.textContent = '완료 — ' + new Date().toLocaleTimeString('ko-KR');
-    toast('SVG 렌더링 성공! 다운로드 가능합니다', 'ok');
-
-  } catch (err) {
-    dot.className = 'status-dot err';
-    stxt.textContent = err.message.split('\n')[0];
-    toast(err.message.split('\n')[0], 'err');
-  } finally {
-    compileBtn.disabled = false;
-    compileBtn.innerHTML = '&#9889; 컴파일';
-  }
-}
-
-/* ════════════════════════════════════════════════════════════
    SPLIT PANE DRAG
 ════════════════════════════════════════════════════════════ */
 (function () {
@@ -904,26 +636,8 @@ async function runCompile() {
     dragging = false; handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-    editor?.refresh();
   });
 })();
-
-/* ════════════════════════════════════════════════════════════
-   BUTTON WIRING
-════════════════════════════════════════════════════════════ */
-let debounceTimer;
-['btn-use', 'ab-use'].forEach(id =>
-  document.getElementById(id).addEventListener('click', enterEditMode));
-['btn-back', 'ab-back'].forEach(id =>
-  document.getElementById(id).addEventListener('click', exitEditMode));
-document.getElementById('btn-compile').addEventListener('click', runCompile);
-document.getElementById('ab-copy').addEventListener('click', async () => {
-  if (!editor) return;
-  try {
-    await navigator.clipboard.writeText(editor.getValue());
-    toast('코드가 클립보드에 복사되었습니다', 'ok');
-  } catch { toast('복사 실패', 'err'); }
-});
 
 /* ════════════════════════════════════════════════════════════
    TOAST
