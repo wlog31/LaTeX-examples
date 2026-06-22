@@ -16,8 +16,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
 
-<!-- PDF.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- pako (zlib compression for Kroki URL encoding) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 
 <style>
 /* ── Reset ── */
@@ -386,7 +386,7 @@ header {
     <div class="hd-space"></div>
     <button class="hd-btn back" id="btn-back">← 돌아가기</button>
     <button class="hd-btn compile" id="btn-compile">⚡ 컴파일</button>
-    <button class="hd-btn use" id="btn-use" disabled>사용하기 →</button>
+    <button class="hd-btn use" id="btn-use" disabled>✏️ SVG 만들기 →</button>
     <button class="hd-theme" id="btn-theme" title="테마 전환">☀️</button>
     <a class="hd-gh" id="gh-link" href="#" target="_blank" rel="noopener">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -421,7 +421,7 @@ header {
           <div class="wc-icon">📐</div>
           <div class="wc-title">LaTeX Examples</div>
           <div class="wc-desc">왼쪽에서 예제를 선택하면 코드와 컴파일 결과를 볼 수 있습니다.<br>
-            <b style="color:#60a5fa">사용하기</b> 버튼으로 코드를 편집하고 SVG로 내보낼 수 있습니다.</div>
+            <b style="color:#60a5fa">SVG 만들기</b> 버튼으로 코드를 편집하고 SVG로 내보낼 수 있습니다.</div>
           <div class="wc-meta" id="wc-meta"></div>
         </div>
       </div>
@@ -474,7 +474,7 @@ header {
 
     <!-- View mode -->
     <span class="ab-label view-only">예제 보기</span>
-    <button class="ab-btn ab-use view-only" id="ab-use" disabled title="TikZ 폴더 파일만 편집 가능">사용하기 →</button>
+    <button class="ab-btn ab-use view-only" id="ab-use" disabled title="TikZ 폴더 파일만 SVG로 변환 가능">✏️ SVG 만들기 →</button>
     <span class="ab-sep view-only"></span>
     <a class="ab-btn ab-tex view-only hidden" id="ab-dl-tex" href="#" download>⬇ .tex</a>
     <a class="ab-btn ab-pdf view-only hidden" id="ab-dl-pdf" href="#" download>⬇ .pdf</a>
@@ -538,9 +538,6 @@ header {
 /* ════════════════════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════════════════════ */
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
 (function () {
   const h = location.hostname;
   if (h.endsWith('.github.io')) {
@@ -552,9 +549,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 })();
 
 /* ════════════════════════════════════════════════════════════
-   COMPILE ENDPOINT
+   COMPILE ENDPOINT — Kroki.io (texlive 불필요, 서버/프록시 불필요)
 ════════════════════════════════════════════════════════════ */
-const COMPILE_PROXY = '';
+const KROKI_ENDPOINT = 'https://kroki.io/tikz/svg/';
 
 /* ════════════════════════════════════════════════════════════
    STATE
@@ -806,14 +803,27 @@ async function inlineInputs(tex, baseFolder) {
   return result;
 }
 
-async function pdfFirstPageToPng(pdfBuf, scale = 2.5) {
-  const pdf  = await pdfjsLib.getDocument({ data: pdfBuf }).promise;
-  const page = await pdf.getPage(1);
-  const vp   = page.getViewport({ scale });
-  const cvs  = document.createElement('canvas');
-  cvs.width = vp.width; cvs.height = vp.height;
-  await page.render({ canvasContext: cvs.getContext('2d'), viewport: vp }).promise;
-  return { dataUrl: cvs.toDataURL('image/png'), w: vp.width, h: vp.height };
+function encodeForKroki(text) {
+  const data       = new TextEncoder().encode(text);
+  const compressed = pako.deflate(data, { level: 9 });
+  let binary = '';
+  for (let i = 0; i < compressed.length; i++) binary += String.fromCharCode(compressed[i]);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+function renderSvgIntoCanvas(svgText) {
+  const canvas = document.getElementById('svg-canvas');
+  canvas.innerHTML = svgText;
+  const svgEl = canvas.querySelector('svg');
+  if (!svgEl) {
+    canvas.innerHTML = '<div class="svg-placeholder"><div class="svg-placeholder-icon">⚠</div><div>SVG 파싱 오류</div></div>';
+    return;
+  }
+  if (!svgEl.getAttribute('viewBox')) {
+    const w = parseFloat(svgEl.getAttribute('width') || '0');
+    const h = parseFloat(svgEl.getAttribute('height') || '0');
+    if (w > 0 && h > 0) svgEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  }
 }
 
 async function runCompile() {
@@ -825,72 +835,40 @@ async function runCompile() {
   const dot  = document.getElementById('status-dot');
   const stxt = document.getElementById('status-text');
   dot.className = 'status-dot spin-dot';
-  stxt.textContent = 'XeLaTeX 컴파일 중… (수 초 소요)';
+  stxt.textContent = '\\input{} 파일 인라인 중…';
 
   try {
     const rawTex     = editor.getValue();
     const baseFolder = current.tex.split('/').slice(0, -1).join('/');
+    const inlined    = await inlineInputs(rawTex, baseFolder);
 
-    stxt.textContent = '\\input{} 파일 인라인 중…';
-    const inlined = await inlineInputs(rawTex, baseFolder);
+    stxt.textContent = 'Kroki.io로 SVG 렌더링 중… (texlive 불필요)';
+    const url = KROKI_ENDPOINT + encodeForKroki(inlined);
 
-    const endpoint = COMPILE_PROXY || 'https://texlive.net/cgi-bin/latexcgi';
-    stxt.textContent = '서버 전송 중… (' + (COMPILE_PROXY ? 'proxy' : 'texlive.net') + ')';
-    const form = new FormData();
-    form.append('filecontents[]', inlined);
-    form.append('filename[]', 'document.tex');
-    form.append('engine', 'xelatex');
-    form.append('return', 'pdf');
-
-    let response;
-    try {
-      response = await fetch(endpoint, { method: 'POST', body: form });
-    } catch (e) {
-      if (!COMPILE_PROXY) {
-        dot.className = 'status-dot err';
-        stxt.innerHTML = 'CORS 오류 — Cloudflare Worker 프록시를 설정하세요 '
-          + '(<a href="https://github.com/' + location.hostname.replace('.github.io','') + '/'
-          + location.pathname.split('/').filter(Boolean)[0]
-          + '/blob/main/cloudflare-worker.js" target="_blank" rel="noopener" style="color:#60a5fa">cloudflare-worker.js 참조 ↗</a>)';
-        toast('CORS 오류: cloudflare-worker.js 참조', 'err');
-      } else {
-        dot.className = 'status-dot err';
-        stxt.textContent = '프록시 연결 실패: ' + endpoint;
-        toast('프록시 연결 실패', 'err');
-      }
-      return;
+    const response = await fetch(url);
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error('컴파일 실패 — ' + errText.slice(0, 300));
+    }
+    const svgText = await response.text();
+    if (!svgText.includes('<svg')) {
+      throw new Error('SVG를 받지 못했습니다: ' + svgText.slice(0, 200));
     }
 
-    if (!response.ok) throw new Error('서버 오류 ' + response.status);
-    const ct = response.headers.get('content-type') || '';
-    if (!ct.includes('pdf')) {
-      const log = await response.text();
-      throw new Error('컴파일 실패 — ' + log.slice(0, 200));
-    }
+    compiledSvg = svgText;
+    renderSvgIntoCanvas(svgText);
 
-    stxt.textContent = 'SVG 렌더링 중…';
-    const pdfBuf = await response.arrayBuffer();
-
-    const { dataUrl, w, h } = await pdfFirstPageToPng(pdfBuf);
-    const svgStr  = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'
-      + w + '" height="' + h + '"><image xlink:href="' + dataUrl + '" width="' + w + '" height="' + h + '"/></svg>';
-    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
     const svgUrl  = URL.createObjectURL(svgBlob);
-    compiledSvg   = { dataUrl, svgUrl };
-
-    const canvas = document.getElementById('svg-canvas');
-    canvas.innerHTML = '';
-    const img = document.createElement('img');
-    img.src = dataUrl; img.alt = 'Compiled output';
-    canvas.appendChild(img);
-
     const dlSvg = document.getElementById('ab-dl-svg');
+    if (dlSvg._prevUrl) URL.revokeObjectURL(dlSvg._prevUrl);
+    dlSvg._prevUrl = svgUrl;
     dlSvg.href = svgUrl; dlSvg.download = current.name + '.svg';
     dlSvg.style.display = 'flex';
 
     dot.className = 'status-dot ok';
     stxt.textContent = '완료 — ' + new Date().toLocaleTimeString('ko-KR');
-    toast('컴파일 성공! SVG 다운로드 가능합니다', 'ok');
+    toast('SVG 렌더링 성공! 다운로드 가능합니다', 'ok');
 
   } catch (err) {
     dot.className = 'status-dot err';

@@ -32,3 +32,4 @@ _site/
 .DS_Store
 Thumbs.db
 .vscode/
+testfile.tmp
