@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-12T07:19:03.097627+00:00",
+  "generated_at": "2026-06-22T05:34:37.546038+00:00",
   "folders": {
     "tikz": [
       {
@@ -9,19 +9,11 @@
         "svg": null
       }
     ],
-    "graphics": [
-      {
-        "name": "_template",
-        "tex": "graphics/_template.tex",
-        "pdf": "graphics/_template.pdf",
-        "svg": null
-      }
-    ],
     "documents": [
       {
         "name": "_template",
         "tex": "documents/_template.tex",
-        "pdf": null,
+        "pdf": "documents/_template.pdf",
         "svg": null
       }
     ],

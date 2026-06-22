@@ -598,7 +598,7 @@ async function tryGitHubAPI() {
     const r = await fetch(`https://api.github.com/repos/${user}/${repo}/git/trees/HEAD?recursive=1`);
     const data = await r.json();
     if (!data.tree) return;
-    const FOLDERS = ['tikz', 'graphics', 'documents', 'preambles'];
+    const FOLDERS = ['tikz', 'documents', 'preambles'];
     const folders = Object.fromEntries(FOLDERS.map(f => [f, []]));
     for (const item of data.tree) {
       const parts = item.path.split('/');
@@ -623,7 +623,6 @@ async function tryGitHubAPI() {
 ════════════════════════════════════════════════════════════ */
 const FOLDERS = {
   tikz:      { icon: '✏️', label: 'tikz', editable: true },
-  graphics:  { icon: '🎨', label: 'graphics' },
   documents: { icon: '📄', label: 'documents' },
   preambles: { icon: '📦', label: 'preambles' },
 };

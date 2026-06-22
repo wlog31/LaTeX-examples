@@ -5,7 +5,7 @@ import json
 import os
 from datetime import datetime, timezone
 
-FOLDERS = ["tikz", "graphics", "documents", "preambles"]
+FOLDERS = ["tikz", "documents", "preambles"]
 
 
 def resolve_folder(name):
