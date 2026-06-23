@@ -184,22 +184,14 @@ header {
   position: relative;
   height: 2px;
   margin: 14px 0.9rem;
-  border-radius: 2px;
-  background: linear-gradient(to right,
-    transparent 0%,
-    #3b82f6 15%,
-    #60a5fa 50%,
-    #3b82f6 85%,
-    transparent 100%);
-  box-shadow: 0 0 6px rgba(59, 130, 246, 0.55);
-  opacity: 0.85;
+  border-radius: 1px;
+  background: #3b82f6;
 }
 .folder-divider::before {
   content: '';
   position: absolute; top: 50%; left: 50%;
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #60a5fa;
-  box-shadow: 0 0 8px rgba(96, 165, 250, 0.9);
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #3b82f6;
   transform: translate(-50%, -50%);
 }
 .folder > .folder-hdr {
@@ -345,7 +337,7 @@ header {
 
 .pane-right.collapsed,
 .drag-handle.collapsed { display: none; }
-#btn-preview-toggle.active { background: var(--item-active); border-color: var(--item-active-b); }
+#btn-preview-toggle.active { color: #60a5fa; border-color: #1e3a5f; background: #0f2236; }
 
 /* ════════════════════════════════════════
    ACTION BAR
@@ -448,7 +440,6 @@ header {
   <!-- ═══ HEADER ═══ -->
   <header>
     <button class="hd-theme" id="btn-sidebar-toggle" title="좌측 패널 접기/펼치기">◧</button>
-    <button class="hd-theme" id="btn-preview-toggle" title="미리보기 열기/닫기">🖼️</button>
     <span class="hd-logo">📐 LaTeX Examples</span>
     <span class="hd-sep">|</span>
     <span class="hd-file" id="hd-file">파일을 선택하세요</span>
@@ -494,6 +485,7 @@ header {
           <div class="pane-label">
             <span id="left-label">TeX 코드</span>
             <button class="copy-btn" id="btn-copy" title="TeX 코드 복사">📋 복사</button>
+            <button class="copy-btn" id="btn-preview-toggle" title="미리보기 열기/닫기">🖼️ 미리보기 닫기</button>
           </div>
           <div id="code-view">
             <pre><code class="language-latex" id="code-el"></code></pre>
@@ -613,7 +605,7 @@ header {
     paneRight.classList.toggle('collapsed', collapse);
     handle.classList.toggle('collapsed', collapse);
     btn.classList.toggle('active', collapse);
-    btn.textContent = collapse ? '🖼' : '🖼️';
+    btn.innerHTML = collapse ? '🖼️ 미리보기 열기' : '🖼️ 미리보기 닫기';
 
     if (collapse) {
       savedLeftFlex = paneLeft.style.flex || savedLeftFlex;
