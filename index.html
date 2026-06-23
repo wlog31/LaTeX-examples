@@ -146,12 +146,6 @@ header {
 }
 .hd-theme:hover { background: var(--item-hover); }
 
-.hd-gh {
-  color: var(--gh-color); text-decoration: none; display: flex; align-items: center;
-  gap: 5px; font-size: 0.78rem; transition: color 0.12s; padding: 0 4px;
-}
-.hd-gh:hover { color: var(--gh-hover); }
-
 /* ════════════════════════════════════════
    BODY
 ════════════════════════════════════════ */
@@ -226,15 +220,52 @@ header {
 .workspace { flex: 1; display: flex; overflow: hidden; position: relative; }
 
 .welcome {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  text-align: center; padding: 2rem;
+  flex: 1; display: flex; align-items: flex-start; justify-content: center;
+  text-align: center; padding: 2.5rem 1.5rem; overflow-y: auto;
   background: var(--bg-welcome); transition: background 0.2s;
 }
-.wc-box { max-width: 380px; }
+.home-box { width: 100%; max-width: 920px; margin: auto; }
 .wc-icon  { font-size: 3rem; margin-bottom: 0.75rem; }
 .wc-title { font-size: 1.25rem; font-weight: 600; color: var(--wc-title); margin-bottom: 0.4rem; transition: color 0.2s; }
 .wc-desc  { color: var(--wc-desc); font-size: 0.85rem; line-height: 1.6; transition: color 0.2s; }
-.wc-meta  { margin-top: 1.25rem; font-size: 0.72rem; color: var(--wc-meta); transition: color 0.2s; }
+.wc-meta  { margin-top: 1.5rem; font-size: 0.72rem; color: var(--wc-meta); transition: color 0.2s; }
+
+.home-title-row { margin-bottom: 1.5rem; }
+
+.home-crumb {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: 4px; margin-bottom: 1.5rem; font-size: 0.8rem;
+}
+.crumb-item {
+  cursor: pointer; color: var(--wc-desc); padding: 3px 8px; border-radius: 6px;
+  transition: background 0.12s, color 0.12s; font-weight: 500;
+}
+.crumb-item:hover { background: var(--item-hover); color: var(--item-hover-t); }
+.crumb-sep { color: var(--text-sep); }
+
+.home-grid {
+  display: grid; gap: 14px; justify-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 190px));
+}
+.home-grid-root { grid-template-columns: repeat(auto-fit, minmax(170px, 210px)); }
+
+.home-card {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 1.4rem 1rem; border-radius: 14px; border: 2px solid var(--border);
+  background: var(--bg-sidebar); cursor: pointer; transition: transform 0.15s, filter 0.15s, border-color 0.15s;
+  font-family: inherit; color: var(--text-logo);
+}
+.home-card:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.home-card-icon  { font-size: 1.8rem; line-height: 1; }
+.home-card-label { font-size: 0.85rem; font-weight: 600; text-align: center; word-break: break-word; }
+.home-card-count { font-size: 0.68rem; color: var(--wc-meta); }
+
+.home-card-sm { padding: 0.9rem 0.8rem; gap: 4px; }
+.home-card-sm .home-card-icon  { font-size: 1.3rem; }
+.home-card-sm .home-card-label { font-size: 0.78rem; font-weight: 500; }
+.home-card-file { border-style: dashed; }
+
+.home-empty { text-align: center; color: var(--sb-empty); font-size: 0.85rem; padding: 1.5rem; font-style: italic; }
 
 .panes { flex: 1; display: none; overflow: hidden; }
 .panes.visible { display: flex; }
@@ -374,19 +405,7 @@ header {
     <span class="hd-mode-badge view" id="hd-badge">보기</span>
     <div class="hd-space"></div>
     <button class="hd-theme" id="btn-theme" title="테마 전환">☀️</button>
-    <a class="hd-gh" id="gh-link" href="#" target="_blank" rel="noopener">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
-          0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
-          -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
-          .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
-          -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27
-          .68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
-          .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48
-          0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-      </svg>
-      GitHub
-    </a>
+    <button class="hd-theme" id="btn-home" title="처음 화면으로">🏠</button>
   </header>
 
   <!-- ═══ BODY ═══ -->
@@ -401,12 +420,17 @@ header {
     <!-- Workspace -->
     <div class="workspace" id="workspace">
 
-      <!-- Welcome -->
+      <!-- Welcome / Home browser -->
       <div class="welcome" id="welcome">
-        <div class="wc-box">
-          <div class="wc-icon">📐</div>
-          <div class="wc-title">LaTeX Examples</div>
-          <div class="wc-desc">왼쪽에서 예제를 선택하면 코드와 컴파일 결과를 볼 수 있습니다.</div>
+        <div class="home-box" id="home-box">
+          <div class="home-title-row" id="home-title-row">
+            <div class="wc-icon">📐</div>
+            <div class="wc-title">LaTeX Examples</div>
+            <div class="wc-desc">폴더를 선택하면 하위 폴더와 예제 파일이 표시됩니다.</div>
+          </div>
+          <div class="home-crumb" id="home-crumb"></div>
+          <div class="home-grid" id="home-grid"></div>
+          <div class="home-empty" id="home-empty" style="display:none">비어 있음</div>
           <div class="wc-meta" id="wc-meta"></div>
         </div>
       </div>
@@ -511,27 +535,21 @@ header {
     sidebar.classList.toggle('hidden', hide);
     btn.textContent = hide ? '◨' : '◧';
     localStorage.setItem('latex-sidebar', hide ? 'hidden' : 'visible');
+    setTimeout(() => { if (typeof refreshPdfView === 'function') refreshPdfView(); }, 250);
   }
 })();
 
 /* ════════════════════════════════════════════════════════════
-   INIT
+   HOME BUTTON
 ════════════════════════════════════════════════════════════ */
-(function () {
-  const h = location.hostname;
-  if (h.endsWith('.github.io')) {
-    const user = h.replace('.github.io', '');
-    const repo = location.pathname.split('/').filter(Boolean)[0] || '';
-    document.getElementById('gh-link').href =
-      repo ? `https://github.com/${user}/${repo}` : `https://github.com/${user}`;
-  }
-})();
+document.getElementById('btn-home').addEventListener('click', goHome);
 
 /* ════════════════════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════════════════════ */
 let manifest = null;
 let current  = null;
+let homePath = [];   // [] = root, [folder], [folder, sub, ...]
 
 /* ════════════════════════════════════════════════════════════
    LOAD MANIFEST
@@ -546,11 +564,9 @@ async function boot() {
       const d = new Date(manifest.generated_at);
       document.getElementById('wc-meta').textContent = `빌드: ${d.toLocaleString('ko-KR')}`;
     }
-    const first = Object.entries(manifest.folders)
-      .flatMap(([f, files]) => files.map(e => ({ folder: f, ...e })))
-      .find(Boolean);
-    if (first) openFile(first.folder, first.name);
+    renderHome();
   } catch {
+    renderHome();
     document.getElementById('wc-meta').innerHTML =
       '<span style="color:#ef4444">⚠ files.json 없음 — CI를 먼저 실행하세요</span>';
     tryGitHubAPI();
@@ -589,6 +605,7 @@ async function tryGitHubAPI() {
     }
     manifest = { folders };
     renderSidebar();
+    renderHome();
   } catch { /* silent */ }
 }
 
@@ -699,6 +716,114 @@ function toggleFolder(key, isSub) {
   document.getElementById(id)?.classList.toggle('closed');
 }
 
+/* ════════════════════════════════════════════════════════════
+   HOME BROWSER (welcome screen: folders → subfolders → files)
+════════════════════════════════════════════════════════════ */
+function getNodeAtPath(folder, parts) {
+  const files = manifest?.folders?.[folder] ?? [];
+  let node = buildTree(files);
+  for (const p of parts) {
+    if (!node.sub[p]) return null;
+    node = node.sub[p];
+  }
+  return node;
+}
+
+function goHome() {
+  homePath = [];
+  renderHome();
+}
+
+function goHomePath(depth) {
+  homePath = homePath.slice(0, depth);
+  renderHome();
+}
+
+function renderHome() {
+  current = null;
+  document.querySelectorAll('.file-item.active').forEach(el => el.classList.remove('active'));
+  document.getElementById('panes').classList.remove('visible');
+  document.getElementById('welcome').style.display = 'flex';
+  document.getElementById('hd-file').textContent = '파일을 선택하세요';
+  const dlTex = document.getElementById('ab-dl-tex');
+  const dlPdf = document.getElementById('ab-dl-pdf');
+  dlTex.style.display = 'none';
+  dlPdf.style.display = 'none';
+
+  const crumbEl = document.getElementById('home-crumb');
+  const gridEl  = document.getElementById('home-grid');
+  const emptyEl = document.getElementById('home-empty');
+  const titleEl = document.getElementById('home-title-row');
+  gridEl.innerHTML = '';
+  emptyEl.style.display = 'none';
+
+  // breadcrumb
+  if (homePath.length) {
+    let crumbHtml = `<span class="crumb-item" onclick="goHome()">🏠 처음으로</span>`;
+    homePath.forEach((seg, i) => {
+      const label = i === 0 ? (FOLDERS[seg]?.label ?? seg) : seg;
+      crumbHtml += `<span class="crumb-sep">›</span><span class="crumb-item" onclick="goHomePath(${i + 1})">${escapeHtml(label)}</span>`;
+    });
+    crumbEl.innerHTML = crumbHtml;
+    crumbEl.style.display = 'flex';
+  } else {
+    crumbEl.innerHTML = '';
+    crumbEl.style.display = 'none';
+  }
+  titleEl.style.display = homePath.length ? 'none' : 'block';
+
+  if (homePath.length === 0) {
+    // root: one big button per top-level folder
+    gridEl.className = 'home-grid home-grid-root';
+    for (const [key, meta] of Object.entries(FOLDERS)) {
+      const count = (manifest?.folders?.[key] ?? []).length;
+      const btn = document.createElement('button');
+      btn.className = 'home-card';
+      btn.style.color = meta.accent;
+      btn.innerHTML = `
+        <span class="home-card-icon">${meta.icon}</span>
+        <span class="home-card-label">${escapeHtml(meta.label)}</span>
+        <span class="home-card-count">${count}개 파일</span>`;
+      btn.onclick = () => { homePath = [key]; renderHome(); };
+      gridEl.appendChild(btn);
+    }
+    return;
+  }
+
+  // deeper level: subfolders + files of the current node
+  gridEl.className = 'home-grid';
+  const folder = homePath[0];
+  const node = getNodeAtPath(folder, homePath.slice(1));
+  if (!node) { homePath = [folder]; renderHome(); return; }
+
+  const subNames = Object.keys(node.sub).sort((a, b) => a.localeCompare(b));
+  const leaves = node.leaves.slice().sort((a, b) => a.label.localeCompare(b.label));
+
+  for (const subName of subNames) {
+    const btn = document.createElement('button');
+    btn.className = 'home-card home-card-sm';
+    btn.innerHTML = `<span class="home-card-icon">📁</span><span class="home-card-label">${escapeHtml(subName)}</span>`;
+    btn.onclick = () => { homePath = [...homePath, subName]; renderHome(); };
+    gridEl.appendChild(btn);
+  }
+  for (const f of leaves) {
+    const btn = document.createElement('button');
+    btn.className = 'home-card home-card-sm home-card-file';
+    btn.innerHTML = `
+      <span class="home-card-icon">📄</span>
+      <span class="home-card-label">${escapeHtml(f.label)}</span>
+      <span class="fi-badges">
+        ${f.pdf ? '<span class="fi-badge pdf">pdf</span>' : ''}
+        ${f.svg ? '<span class="fi-badge svg">svg</span>' : ''}
+      </span>`;
+    btn.onclick = () => openFile(folder, f.name);
+    gridEl.appendChild(btn);
+  }
+  if (!subNames.length && !leaves.length) {
+    emptyEl.style.display = 'block';
+  }
+}
+
 function openFileFromEl(el) {
   openFile(el.dataset.folder, el.dataset.name);
 }
@@ -756,6 +881,27 @@ async function openFile(folder, name) {
 }
 
 /* ════════════════════════════════════════════════════════════
+   PDF LIVE RESIZE
+   The browser's built-in PDF viewer only re-fits to its container
+   width at load time, not while the window is being resized live.
+   Force a reload (after resize settles) so "FitH" is recomputed
+   for the new size immediately — no need to pick another file.
+════════════════════════════════════════════════════════════ */
+function refreshPdfView() {
+  if (!current || !current.pdf) return;
+  const pv = document.getElementById('pdf-view');
+  const src = pv.src;
+  pv.src = 'about:blank';
+  requestAnimationFrame(() => { pv.src = src; });
+}
+
+let pdfResizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(pdfResizeTimer);
+  pdfResizeTimer = setTimeout(refreshPdfView, 200);
+});
+
+/* ════════════════════════════════════════════════════════════
    SPLIT PANE DRAG
 ════════════════════════════════════════════════════════════ */
 (function () {
@@ -779,6 +925,7 @@ async function openFile(folder, name) {
     dragging = false; handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+    refreshPdfView();
   });
 })();
 
