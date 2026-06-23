@@ -159,6 +159,9 @@ header {
   transition: width 0.2s, background 0.2s, border-color 0.2s;
 }
 .sidebar.hidden { width: 0; border-right: none; }
+/* On the home (folder-picker) screen, the sidebar and its toggle aren't shown at all. */
+#app.home-mode .sidebar,
+#app.home-mode #btn-sidebar-toggle { display: none; }
 .sb-head {
   padding: 0.6rem 0.9rem;
   font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
@@ -741,6 +744,7 @@ function goHomePath(depth) {
 
 function renderHome() {
   current = null;
+  document.getElementById('app').classList.add('home-mode');
   document.querySelectorAll('.file-item.active').forEach(el => el.classList.remove('active'));
   document.getElementById('panes').classList.remove('visible');
   document.getElementById('welcome').style.display = 'flex';
@@ -838,6 +842,7 @@ async function openFile(folder, name) {
   if (!entry) return;
   current = entry;
 
+  document.getElementById('app').classList.remove('home-mode');
   document.querySelectorAll('.file-item.active').forEach(el => el.classList.remove('active'));
   document.getElementById(`fi-${folder}-${idSafe(name)}`)?.classList.add('active');
 
