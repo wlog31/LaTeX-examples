@@ -162,7 +162,8 @@ header {
 /* On the home (folder-picker) screen, the sidebar and its toggle aren't shown at all. */
 #app.home-mode .sidebar,
 #app.home-mode #btn-sidebar-toggle,
-#app.home-mode .sidebar-backdrop { display: none; }
+#app.home-mode .sidebar-backdrop,
+#app.home-mode #btn-preview-toggle { display: none; }
 .sb-head {
   padding: 0.6rem 0.9rem;
   font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
@@ -181,19 +182,24 @@ header {
 }
 .folder-divider {
   position: relative;
-  height: 1px;
-  margin: 10px 0.9rem;
+  height: 2px;
+  margin: 14px 0.9rem;
+  border-radius: 2px;
   background: linear-gradient(to right,
     transparent 0%,
-    var(--border) 18%,
-    var(--border) 82%,
+    #3b82f6 15%,
+    #60a5fa 50%,
+    #3b82f6 85%,
     transparent 100%);
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.55);
+  opacity: 0.85;
 }
 .folder-divider::before {
   content: '';
   position: absolute; top: 50%; left: 50%;
-  width: 4px; height: 4px; border-radius: 50%;
-  background: var(--scrollbar);
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #60a5fa;
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.9);
   transform: translate(-50%, -50%);
 }
 .folder > .folder-hdr {
@@ -337,6 +343,10 @@ header {
 }
 #pdf-view { flex: 1; border: none; background: #525659; display: block; }
 
+.pane-right.collapsed,
+.drag-handle.collapsed { display: none; }
+#btn-preview-toggle.active { background: var(--item-active); border-color: var(--item-active-b); }
+
 /* ════════════════════════════════════════
    ACTION BAR
 ════════════════════════════════════════ */
@@ -438,6 +448,7 @@ header {
   <!-- ═══ HEADER ═══ -->
   <header>
     <button class="hd-theme" id="btn-sidebar-toggle" title="좌측 패널 접기/펼치기">◧</button>
+    <button class="hd-theme" id="btn-preview-toggle" title="미리보기 열기/닫기">🖼️</button>
     <span class="hd-logo">📐 LaTeX Examples</span>
     <span class="hd-sep">|</span>
     <span class="hd-file" id="hd-file">파일을 선택하세요</span>
@@ -578,6 +589,42 @@ header {
     btn.textContent = hide ? '◨' : '◧';
     localStorage.setItem('latex-sidebar', hide ? 'hidden' : 'visible');
     setTimeout(() => { if (typeof refreshPdfView === 'function') refreshPdfView(); }, 250);
+  }
+})();
+
+/* ════════════════════════════════════════════════════════════
+   PREVIEW TOGGLE
+════════════════════════════════════════════════════════════ */
+(function () {
+  const paneRight = document.getElementById('pane-right');
+  const paneLeft  = document.getElementById('pane-left');
+  const handle    = document.getElementById('drag-handle');
+  const btn       = document.getElementById('btn-preview-toggle');
+  let savedLeftFlex = '';
+
+  const saved = localStorage.getItem('latex-preview');
+  if (saved === 'hidden') setCollapsed(true, true);
+
+  btn.addEventListener('click', () => {
+    setCollapsed(!paneRight.classList.contains('collapsed'));
+  });
+
+  function setCollapsed(collapse, initial) {
+    paneRight.classList.toggle('collapsed', collapse);
+    handle.classList.toggle('collapsed', collapse);
+    btn.classList.toggle('active', collapse);
+    btn.textContent = collapse ? '🖼' : '🖼️';
+
+    if (collapse) {
+      savedLeftFlex = paneLeft.style.flex || savedLeftFlex;
+      paneLeft.style.flex = '1 1 100%';
+    } else {
+      paneLeft.style.flex = savedLeftFlex || '';
+      if (!initial && typeof refreshPdfView === 'function') {
+        setTimeout(refreshPdfView, 250);
+      }
+    }
+    localStorage.setItem('latex-preview', collapse ? 'hidden' : 'visible');
   }
 })();
 
