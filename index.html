@@ -954,7 +954,7 @@ async function openFile(folder, name) {
   }
 
   if (entry.pdf) {
-    document.getElementById('pdf-view').src = entry.pdf + '#view=FitH';
+    document.getElementById('pdf-view').src = buildPdfViewerUrl(entry.pdf);
   } else if (entry.svg) {
     document.getElementById('pdf-view').src = entry.svg;
   } else {
@@ -972,11 +972,21 @@ async function openFile(folder, name) {
 }
 
 /* ════════════════════════════════════════════════════════════
+   PDF VIEWER URL
+   Mobile browsers (notably Android Chrome / in-app browsers)
+   often fail to render a PDF embedded directly in an <iframe>.
+   Mozilla's PDF.js viewer renders the PDF itself with JS/canvas,
+   so it works consistently across desktop and mobile.
+════════════════════════════════════════════════════════════ */
+function buildPdfViewerUrl(pdfPath) {
+  const absoluteUrl = new URL(pdfPath, location.href).href;
+  return `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(absoluteUrl)}`;
+}
+
+/* ════════════════════════════════════════════════════════════
    PDF LIVE RESIZE
-   The browser's built-in PDF viewer only re-fits to its container
-   width at load time, not while the window is being resized live.
-   Force a reload (after resize settles) so "FitH" is recomputed
-   for the new size immediately — no need to pick another file.
+   Force a reload (after resize settles) so the viewer re-fits
+   to the new pane size — no need to pick another file.
 ════════════════════════════════════════════════════════════ */
 function refreshPdfView() {
   if (!current || !current.pdf) return;
