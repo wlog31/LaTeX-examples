@@ -577,7 +577,7 @@ header {
   const btn = document.getElementById('btn-sidebar-toggle');
   const backdrop = document.getElementById('sidebar-backdrop');
   const saved = localStorage.getItem('latex-sidebar');
-  if (saved === 'hidden') setHidden(true);
+  if (saved !== 'visible') setHidden(true);
 
   btn.addEventListener('click', () => {
     setHidden(!sidebar.classList.contains('hidden'));
