@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-22T05:34:37.546038+00:00",
+  "generated_at": "2026-06-23T00:31:14.961557+00:00",
   "folders": {
     "tikz": [
       {
@@ -15,9 +15,45 @@
         "tex": "documents/_template.tex",
         "pdf": "documents/_template.pdf",
         "svg": null
+      },
+      {
+        "name": "article/_template",
+        "tex": "documents/article/_template.tex",
+        "pdf": "documents/article/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "beamer/_template",
+        "tex": "documents/beamer/_template.tex",
+        "pdf": "documents/beamer/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "book/_template",
+        "tex": "documents/book/_template.tex",
+        "pdf": "documents/book/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "report/_template",
+        "tex": "documents/report/_template.tex",
+        "pdf": "documents/report/_template.pdf",
+        "svg": null
       }
     ],
     "preambles": [
+      {
+        "name": "preamble_beamer",
+        "tex": "preambles/preamble_beamer.tex",
+        "pdf": null,
+        "svg": null
+      },
+      {
+        "name": "preamble_documents",
+        "tex": "preambles/preamble_documents.tex",
+        "pdf": null,
+        "svg": null
+      },
       {
         "name": "preamble_tikz",
         "tex": "preambles/preamble_tikz.tex",
