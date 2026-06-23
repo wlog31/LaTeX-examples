@@ -164,7 +164,7 @@ header {
   display: flex; flex-direction: column; overflow: hidden;
   transition: width 0.2s, background 0.2s, border-color 0.2s;
 }
-.sidebar.hidden { width: 0; }
+.sidebar.hidden { width: 0; border-right: none; }
 .sb-head {
   padding: 0.6rem 0.9rem;
   font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
@@ -254,10 +254,11 @@ header {
 #code-view { flex: 1; overflow: auto; display: block; }
 #code-view::-webkit-scrollbar { width: 6px; height: 6px; }
 #code-view::-webkit-scrollbar-thumb { background: #3a3f4b; border-radius: 3px; }
-#code-view pre { margin: 0; border-radius: 0; min-height: 100%; }
+#code-view pre { margin: 0; border-radius: 0; min-height: 100%; white-space: pre-wrap; }
 #code-view code {
   font-family: 'JetBrains Mono','Fira Code',Consolas,monospace !important;
   font-size: 0.83rem !important; line-height: 1.65 !important;
+  white-space: pre-wrap !important; word-break: break-word; overflow-wrap: anywhere;
 }
 
 .copy-btn {
@@ -366,6 +367,7 @@ header {
 
   <!-- ═══ HEADER ═══ -->
   <header>
+    <button class="hd-theme" id="btn-sidebar-toggle" title="좌측 패널 접기/펼치기">◧</button>
     <span class="hd-logo">📐 LaTeX Examples</span>
     <span class="hd-sep">|</span>
     <span class="hd-file" id="hd-file">파일을 선택하세요</span>
@@ -489,6 +491,26 @@ header {
       codeEl.removeAttribute('data-highlighted');
       hljs.highlightElement(codeEl);
     }
+  }
+})();
+
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR TOGGLE
+════════════════════════════════════════════════════════════ */
+(function () {
+  const sidebar = document.getElementById('sidebar');
+  const btn = document.getElementById('btn-sidebar-toggle');
+  const saved = localStorage.getItem('latex-sidebar');
+  if (saved === 'hidden') setHidden(true);
+
+  btn.addEventListener('click', () => {
+    setHidden(!sidebar.classList.contains('hidden'));
+  });
+
+  function setHidden(hide) {
+    sidebar.classList.toggle('hidden', hide);
+    btn.textContent = hide ? '◨' : '◧';
+    localStorage.setItem('latex-sidebar', hide ? 'hidden' : 'visible');
   }
 })();
 
@@ -716,7 +738,7 @@ async function openFile(folder, name) {
   }
 
   if (entry.pdf) {
-    document.getElementById('pdf-view').src = entry.pdf;
+    document.getElementById('pdf-view').src = entry.pdf + '#view=FitH';
   } else if (entry.svg) {
     document.getElementById('pdf-view').src = entry.svg;
   } else {
