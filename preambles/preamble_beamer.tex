@@ -31,8 +31,12 @@
 \usepackage{cancel}
 \IfFileExists{physics.sty}{\usepackage{physics}}{}
 
-\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
-\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\ifdefined\abs\else
+  \DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\fi
+\ifdefined\norm\else
+  \DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\fi
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}

@@ -340,6 +340,25 @@ header {
   font-size: 0.85rem; color: #94a3b8; text-align: center; padding: 2rem;
   flex-direction: column; gap: 8px;
 }
+
+/* ════════════════════════════════════════
+   NARROW SCREENS (phone / tablet portrait)
+   Stack panes vertically: PDF preview on top, TeX code below.
+════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .panes.visible {
+    flex-direction: column;
+  }
+  .pane-left, .pane-right {
+    flex: 1 1 50% !important;
+    max-width: 100% !important;
+    min-width: 0;
+    width: 100% !important;
+  }
+  .pane-right { order: -1; }
+  .pane-left  { order: 0; }
+  .drag-handle { display: none; }
+}
 </style>
 </head>
 <body>

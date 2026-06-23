@@ -36,8 +36,12 @@
 \IfFileExists{physics.sty}{\usepackage{physics}}{}  % \dv, \pdv, \abs, \norm 등 (있을 때만)
 
 % 자주 쓰는 수식 매크로
-\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
-\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\ifdefined\abs\else
+  \DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\fi
+\ifdefined\norm\else
+  \DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\fi
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
