@@ -295,6 +295,7 @@ header {
   background: #21252b; color: #4b5263; border-bottom: 1px solid #181a1f;
   flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
 }
+.pane-label-actions { display: flex; align-items: center; gap: 6px; }
 #code-view { flex: 1; overflow: auto; display: block; }
 #code-view::-webkit-scrollbar { width: 6px; height: 6px; }
 #code-view::-webkit-scrollbar-thumb { background: #3a3f4b; border-radius: 3px; }
@@ -484,8 +485,10 @@ header {
         <div class="pane-left" id="pane-left">
           <div class="pane-label">
             <span id="left-label">TeX 코드</span>
-            <button class="copy-btn" id="btn-copy" title="TeX 코드 복사">📋 복사</button>
-            <button class="copy-btn" id="btn-preview-toggle" title="미리보기 열기/닫기">🖼️ 미리보기 닫기</button>
+            <div class="pane-label-actions">
+              <button class="copy-btn" id="btn-copy" title="TeX 코드 복사">📋 복사</button>
+              <button class="copy-btn" id="btn-preview-toggle" title="미리보기 열기/닫기">🖼️ 미리보기 닫기</button>
+            </div>
           </div>
           <div id="code-view">
             <pre><code class="language-latex" id="code-el"></code></pre>
@@ -753,7 +756,6 @@ function renderTree(node, key, depth) {
         <span>📄</span>
         <span style="overflow:hidden;text-overflow:ellipsis">${escapeHtml(f.label)}</span>
         <span class="fi-badges">
-          ${f.pdf ? '<span class="fi-badge pdf">pdf</span>' : ''}
           ${f.svg ? '<span class="fi-badge svg">svg</span>' : ''}
         </span>
       </div>`;
