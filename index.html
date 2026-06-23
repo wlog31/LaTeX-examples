@@ -179,10 +179,21 @@ header {
   transition: border-color 0.2s;
 }
 .folder-divider {
+  position: relative;
   height: 1px;
-  margin: 6px 0.9rem;
-  background: var(--border);
-  opacity: 0.8;
+  margin: 10px 0.9rem;
+  background: linear-gradient(to right,
+    transparent 0%,
+    var(--border) 18%,
+    var(--border) 82%,
+    transparent 100%);
+}
+.folder-divider::before {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--scrollbar);
+  transform: translate(-50%, -50%);
 }
 .folder > .folder-hdr {
   font-size: 0.8rem; font-weight: 700; letter-spacing: 0.02em;
