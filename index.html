@@ -181,6 +181,12 @@ header {
   margin-bottom: 4px;
   transition: border-color 0.2s;
 }
+.folder-divider {
+  height: 1px;
+  margin: 6px 0.9rem;
+  background: var(--border);
+  opacity: 0.8;
+}
 .folder > .folder-hdr {
   font-size: 0.8rem; font-weight: 700; letter-spacing: 0.02em;
 }
@@ -622,7 +628,9 @@ function renderTree(node, key, depth) {
 function renderSidebar() {
   const root = document.getElementById('sb-content');
   root.innerHTML = '';
-  for (const [key, meta] of Object.entries(FOLDERS)) {
+  const keys = Object.keys(FOLDERS);
+  keys.forEach((key, idx) => {
+    const meta = FOLDERS[key];
     const files = manifest?.folders?.[key] ?? [];
     const tree = buildTree(files);
     const sec = document.createElement('div');
@@ -637,7 +645,12 @@ function renderSidebar() {
         ${renderTree(tree, key, 1)}
       </div>`;
     root.appendChild(sec);
-  }
+    if (idx < keys.length - 1) {
+      const divider = document.createElement('div');
+      divider.className = 'folder-divider';
+      root.appendChild(divider);
+    }
+  });
 }
 
 function toggleFolder(key, isSub) {
