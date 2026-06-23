@@ -175,7 +175,15 @@ header {
 .sb-scroll::-webkit-scrollbar { width: 4px; }
 .sb-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
 
-.folder { border-bottom: 1px solid var(--border); transition: border-color 0.2s; }
+.folder {
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  margin-bottom: 4px;
+  transition: border-color 0.2s;
+}
+.folder > .folder-hdr {
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.02em;
+}
 .folder-hdr {
   padding: 0.5rem 0.9rem; display: flex; align-items: center; gap: 6px;
   font-size: 0.76rem; font-weight: 600; color: var(--text-folder);
@@ -245,6 +253,16 @@ header {
   font-family: 'JetBrains Mono','Fira Code',Consolas,monospace !important;
   font-size: 0.83rem !important; line-height: 1.65 !important;
 }
+
+.copy-btn {
+  background: transparent; border: 1px solid #3a3f4b; color: #9aa1ad;
+  font-size: 0.64rem; font-weight: 700; padding: 3px 9px; border-radius: 5px;
+  cursor: pointer; letter-spacing: 0.04em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 4px;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.copy-btn:hover { background: #2c313c; color: #e2e8f0; border-color: #4b5263; }
+.copy-btn.copied { color: #4ade80; border-color: #14532d; background: #052e16; }
 
 /* Drag handle */
 .drag-handle {
@@ -373,6 +391,7 @@ header {
         <div class="pane-left" id="pane-left">
           <div class="pane-label">
             <span id="left-label">TeX 코드</span>
+            <button class="copy-btn" id="btn-copy" title="TeX 코드 복사">📋 복사</button>
           </div>
           <div id="code-view">
             <pre><code class="language-latex" id="code-el"></code></pre>
@@ -530,9 +549,9 @@ async function tryGitHubAPI() {
    SIDEBAR
 ════════════════════════════════════════════════════════════ */
 const FOLDERS = {
-  tikz:      { icon: '✏️', label: 'tikz' },
-  documents: { icon: '📄', label: 'documents' },
-  preambles: { icon: '📦', label: 'preambles' },
+  tikz:      { icon: '✏️', label: 'tikz',      accent: '#8b5cf6' },
+  documents: { icon: '📄', label: 'documents', accent: '#3b82f6' },
+  preambles: { icon: '📦', label: 'preambles', accent: '#f59e0b' },
 };
 
 function idSafe(s) {
@@ -608,8 +627,9 @@ function renderSidebar() {
     const tree = buildTree(files);
     const sec = document.createElement('div');
     sec.className = 'folder'; sec.id = `sec-${key}`;
+    sec.style.borderLeftColor = meta.accent;
     sec.innerHTML = `
-      <div class="folder-hdr" onclick="toggleFolder('${key}')">
+      <div class="folder-hdr" style="color:${meta.accent}" onclick="toggleFolder('${key}')">
         <span>${meta.icon}</span><span>${meta.label}</span>
         <span class="folder-arrow">▾</span>
       </div>
@@ -721,6 +741,26 @@ function toast(msg, type) {
   document.body.appendChild(el);
   toastTimer = setTimeout(() => el.remove(), 3200);
 }
+
+/* ════════════════════════════════════════════════════════════
+   COPY TEX CODE
+════════════════════════════════════════════════════════════ */
+document.getElementById('btn-copy').addEventListener('click', async () => {
+  const codeEl = document.getElementById('code-el');
+  const text = codeEl.textContent;
+  if (!text || !text.trim() || text === '불러오는 중…') return;
+  const btn = document.getElementById('btn-copy');
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('TeX 코드가 복사되었습니다', 'ok');
+    btn.classList.add('copied');
+    const orig = btn.textContent;
+    btn.textContent = '✅ 복사됨';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1500);
+  } catch {
+    toast('복사에 실패했습니다', 'err');
+  }
+});
 
 /* ════════════════════════════════════════════════════════════
    BOOT
