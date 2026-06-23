@@ -161,7 +161,8 @@ header {
 .sidebar.hidden { width: 0; border-right: none; }
 /* On the home (folder-picker) screen, the sidebar and its toggle aren't shown at all. */
 #app.home-mode .sidebar,
-#app.home-mode #btn-sidebar-toggle { display: none; }
+#app.home-mode #btn-sidebar-toggle,
+#app.home-mode .sidebar-backdrop { display: none; }
 .sb-head {
   padding: 0.6rem 0.9rem;
   font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
@@ -404,6 +405,30 @@ header {
   .pane-right { order: -1; }
   .pane-left  { order: 0; }
   .drag-handle { display: none; }
+
+  /* Sidebar becomes an overlay drawer instead of pushing the layout.
+     This keeps the code/preview panes at a fixed size while it opens
+     and closes, so the PDF view never has to reflow (and go blank). */
+  .sidebar {
+    position: fixed; top: 48px; left: 0; bottom: 0;
+    width: 82%; max-width: 300px;
+    z-index: 30;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    box-shadow: 4px 0 18px rgba(0, 0, 0, 0.35);
+  }
+  .sidebar:not(.hidden) { transform: translateX(0); }
+  .sidebar.hidden { width: 82%; max-width: 300px; border-right: 1px solid var(--border); }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed; inset: 48px 0 0 0; z-index: 25;
+    background: rgba(0, 0, 0, 0.4);
+  }
+  .sidebar:not(.hidden) ~ .sidebar-backdrop,
+  .sidebar:not(.hidden) + .sidebar-backdrop {
+    display: block;
+  }
 }
 </style>
 </head>
@@ -430,6 +455,7 @@ header {
       <div class="sb-head">예제 파일</div>
       <div class="sb-scroll" id="sb-content"></div>
     </aside>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
     <!-- Workspace -->
     <div class="workspace" id="workspace">
@@ -538,12 +564,14 @@ header {
 (function () {
   const sidebar = document.getElementById('sidebar');
   const btn = document.getElementById('btn-sidebar-toggle');
+  const backdrop = document.getElementById('sidebar-backdrop');
   const saved = localStorage.getItem('latex-sidebar');
   if (saved === 'hidden') setHidden(true);
 
   btn.addEventListener('click', () => {
     setHidden(!sidebar.classList.contains('hidden'));
   });
+  backdrop.addEventListener('click', () => setHidden(true));
 
   function setHidden(hide) {
     sidebar.classList.toggle('hidden', hide);
