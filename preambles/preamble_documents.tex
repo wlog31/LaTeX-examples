@@ -1,0 +1,144 @@
+% ============================================================
+%  preamble_documents.tex
+%  article / report / book 클래스 공용 프리앰블 (XeLaTeX 기준)
+%  수식·기호, TikZ, 표, 한글 지원에 필요한 패키지를 모아둔다.
+% ============================================================
+
+% ---------------------------------------------------------------
+% 페이지 레이아웃
+% ---------------------------------------------------------------
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{microtype}      % 자간/자폭 미세 조정
+\usepackage{csquotes}       % 올바른 인용부호
+
+% ---------------------------------------------------------------
+% 한글 / 폰트 (XeLaTeX + kotex)
+% ---------------------------------------------------------------
+\usepackage{fontspec}
+\IfFileExists{kotex.sty}{\usepackage{kotex}}{}
+% 한글 폰트를 직접 지정하려면 아래 주석을 해제해서 사용한다.
+% \setmainhangulfont{Noto Serif CJK KR}
+% \setsanshangulfont{Noto Sans CJK KR}
+% \setmonohangulfont{Noto Sans Mono CJK KR}
+
+% ---------------------------------------------------------------
+% 수식 & 기호
+% ---------------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}      % amsmath 확장 (\coloneqq, \DeclarePairedDelimiter 등)
+\usepackage{bm}             % 굵은 수식 기호 \bm{}
+\usepackage{mathrsfs}       % 필기체 글꼴 \mathscr{}
+\usepackage{cancel}         % \cancel, \xcancel, \bcancel
+\usepackage{esint}          % 다양한 적분 기호 (\oiint 등)
+\IfFileExists{siunitx.sty}{\usepackage{siunitx}}{}  % 단위/숫자 표기 \si{}, \num{} (있을 때만)
+\IfFileExists{physics.sty}{\usepackage{physics}}{}  % \dv, \pdv, \abs, \norm 등 (있을 때만)
+
+% 자주 쓰는 수식 매크로
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\C}{\mathbb{C}}
+
+% ---------------------------------------------------------------
+% 정리/정의 환경 (한글 표기)
+% ---------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{정리}[section]
+\newtheorem{lemma}[theorem]{보조정리}
+\newtheorem{corollary}[theorem]{따름정리}
+\newtheorem{proposition}[theorem]{명제}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{정의}
+\newtheorem{example}[theorem]{예제}
+\theoremstyle{remark}
+\newtheorem*{remark}{참고}
+
+% ---------------------------------------------------------------
+% 표
+% ---------------------------------------------------------------
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{makecell}
+
+% ---------------------------------------------------------------
+% 그림 & TikZ
+% ---------------------------------------------------------------
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{
+  arrows.meta,
+  calc,
+  positioning,
+  shapes.geometric,
+  shapes.symbols,
+  fit,
+  backgrounds,
+  patterns,
+  matrix,
+  intersections,
+  decorations.pathmorphing,
+  decorations.markings,
+  angles,
+  quotes
+}
+\tikzset{
+  >=stealth,
+  line cap=round,
+  line join=round,
+  every picture/.style={line width=0.9pt},
+  box/.style={draw, rounded corners, minimum width=2.8cm, minimum height=1.2cm, align=center},
+  circlebox/.style={draw, circle, minimum size=1cm, align=center},
+  arrow/.style={->, thick},
+  dashedarrow/.style={->, thick, dashed},
+  point/.style={circle, fill, inner sep=1.2pt},
+  gridhelp/.style={help lines, gray!35},
+  highlight/.style={fill=blue!10, draw=blue!60!black}
+}
+
+% ---------------------------------------------------------------
+% 목록 & 코드
+% ---------------------------------------------------------------
+\usepackage{enumitem}
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=2,
+}
+
+% ---------------------------------------------------------------
+% 하이퍼링크 & 상호참조
+% ---------------------------------------------------------------
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
+
+% ---------------------------------------------------------------
+% 머리말/꼬리말
+% ---------------------------------------------------------------
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\nouppercase{\rightmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}

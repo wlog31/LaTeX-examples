@@ -1,0 +1,80 @@
+\documentclass[a4paper,11pt]{report}
+\input{../../preambles/preamble_documents.tex}
+
+\title{Report 템플릿}
+\author{Master}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\chapter{서론}
+
+이 문서는 \texttt{report} 클래스용 기본 템플릿이다. \texttt{article}과 달리
+\verb|\chapter|를 사용할 수 있고, 머리말에 현재 장(chapter) 제목이 표시된다.
+
+\chapter{수식과 기호}
+
+\section{기본 표기}
+선형대수에서 행렬 $A \in \R^{m\times n}$의 전치는 $A^{\mathsf T}$로 쓰고,
+프로베니우스 노름은 $\norm{A}_F = \sqrt{\sum_{i,j} a_{ij}^2}$로 정의한다.
+
+\begin{equation}
+  \nabla \cdot \mathbf{E} = \frac{\rho}{\varepsilon_0},
+  \qquad
+  \oint_{\partial \Omega} \mathbf{F}\cdot \mathrm{d}\mathbf{S}
+    = \iiint_\Omega (\nabla\cdot\mathbf{F})\,\mathrm{d}V.
+\end{equation}
+
+\section{정의와 정리}
+
+\begin{definition}[노름 공간]
+  벡터공간 $V$ 위의 함수 $\norm{\cdot} : V \to \R$가 (i) $\norm{v}\ge 0$,
+  (ii) $\norm{v}=0 \iff v=0$, (iii) $\norm{\alpha v}=\abs{\alpha}\norm{v}$,
+  (iv) $\norm{v+w}\le \norm{v}+\norm{w}$를 만족하면 \emph{노름}이라 한다.
+\end{definition}
+
+\begin{theorem}[코시--슈바르츠 부등식]
+  내적공간 $V$의 모든 $u, v \in V$에 대해
+  \[
+    \abs{\langle u, v\rangle} \le \norm{u}\,\norm{v}.
+  \]
+\end{theorem}
+
+\chapter{TikZ 그림과 표}
+
+\section{TikZ 그림}
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \node[box, fill=blue!10] (A) at (0,0) {입력};
+    \node[box, fill=green!10] (B) at (3,0) {처리};
+    \node[box, fill=orange!10] (C) at (6,0) {출력};
+    \draw[arrow] (A) -- (B);
+    \draw[arrow] (B) -- (C);
+  \end{tikzpicture}
+  \caption{간단한 처리 흐름도}
+\end{figure}
+
+\section{표}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    구분 & 설명 & 비고 \\
+    \midrule
+    1단계 & 자료 수집 & - \\
+    2단계 & 자료 분석 & 통계 패키지 사용 \\
+    3단계 & 결과 정리 & 표/그림 포함 \\
+    \bottomrule
+  \end{tabular}
+  \caption{진행 단계 예시}
+\end{table}
+
+\appendix
+\chapter{부록}
+부록 내용은 \verb|\appendix| 이후 \verb|\chapter|로 작성한다.
+
+\end{document}

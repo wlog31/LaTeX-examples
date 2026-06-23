@@ -183,9 +183,12 @@ header {
 }
 .folder-hdr:hover { background: var(--item-hover); color: var(--item-hover-t); }
 .folder-arrow { margin-left: auto; font-size: 0.6rem; transition: transform 0.18s; }
-.folder.closed .folder-arrow { transform: rotate(-90deg); }
-.folder.closed .file-list { display: none; }
+.folder.closed .folder-arrow,
+.subfolder.closed .folder-arrow { transform: rotate(-90deg); }
+.folder.closed .file-list,
+.subfolder.closed .file-list { display: none; }
 .file-list { list-style: none; }
+.subfolder .folder-hdr { font-size: 0.74rem; font-weight: 500; }
 .file-item {
   padding: 0.38rem 0.9rem 0.38rem 1.6rem;
   font-size: 0.78rem; color: var(--text-folder);
@@ -502,15 +505,20 @@ async function tryGitHubAPI() {
     const folders = Object.fromEntries(FOLDERS.map(f => [f, []]));
     for (const item of data.tree) {
       const parts = item.path.split('/');
-      if (parts.length !== 2) continue;
-      const [folderRaw, file] = parts;
+      if (parts.length < 2) continue;
+      const folderRaw = parts[0];
       const folder = folderRaw.toLowerCase();
-      if (!FOLDERS.includes(folder) || !file.endsWith('.tex')) continue;
-      const name = file.slice(0, -4);
+      if (!FOLDERS.includes(folder)) continue;
+      const file = parts[parts.length - 1];
+      if (!file.endsWith('.tex')) continue;
+      const nameOnly = file.slice(0, -4);
+      const subParts = parts.slice(1, -1);
+      const relName = subParts.length ? `${subParts.join('/')}/${nameOnly}` : nameOnly;
+      const basePath = subParts.length ? `${folderRaw}/${subParts.join('/')}` : folderRaw;
       folders[folder].push({
-        name, tex: `${folderRaw}/${name}.tex`,
-        pdf: data.tree.some(t => t.path === `${folderRaw}/${name}.pdf`) ? `${folderRaw}/${name}.pdf` : null,
-        svg: data.tree.some(t => t.path === `${folderRaw}/${name}.svg`) ? `${folderRaw}/${name}.svg` : null,
+        name: relName, tex: `${basePath}/${nameOnly}.tex`,
+        pdf: data.tree.some(t => t.path === `${basePath}/${nameOnly}.pdf`) ? `${basePath}/${nameOnly}.pdf` : null,
+        svg: data.tree.some(t => t.path === `${basePath}/${nameOnly}.svg`) ? `${basePath}/${nameOnly}.svg` : null,
       });
     }
     manifest = { folders };
@@ -527,11 +535,77 @@ const FOLDERS = {
   preambles: { icon: '📦', label: 'preambles' },
 };
 
+function idSafe(s) {
+  return s.replace(/[^a-zA-Z0-9_-]/g, '_');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
+/** Turn a flat list of {name, tex, pdf, svg} (name may contain '/') into a tree. */
+function buildTree(files) {
+  const root = { sub: {}, leaves: [] };
+  for (const f of files) {
+    const parts = f.name.split('/');
+    let node = root;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const p = parts[i];
+      node.sub[p] = node.sub[p] || { sub: {}, leaves: [] };
+      node = node.sub[p];
+    }
+    node.leaves.push({ ...f, label: parts[parts.length - 1] });
+  }
+  return root;
+}
+
+/** Render a tree node into nested subfolder / file-item markup. */
+function renderTree(node, key, depth) {
+  let html = '';
+  const subNames = Object.keys(node.sub).sort((a, b) => a.localeCompare(b));
+  for (const subName of subNames) {
+    const child = node.sub[subName];
+    const subId = idSafe(`${key}__${subName}__${depth}__${Math.random().toString(36).slice(2, 7)}`);
+    html += `
+      <div class="subfolder" id="sub-${subId}">
+        <div class="folder-hdr" style="padding-left:${0.9 + depth * 0.5}rem"
+             onclick="toggleFolder('${subId}', true)">
+          <span>📁</span><span>${escapeHtml(subName)}</span>
+          <span class="folder-arrow">▾</span>
+        </div>
+        <div class="file-list" id="fl-${subId}">
+          ${renderTree(child, key, depth + 1)}
+        </div>
+      </div>`;
+  }
+  const leaves = node.leaves.slice().sort((a, b) => a.label.localeCompare(b.label));
+  for (const f of leaves) {
+    const fid = `fi-${key}-${idSafe(f.name)}`;
+    html += `
+      <div class="file-item" id="${fid}" style="padding-left:${1.6 + depth * 0.5}rem"
+           data-folder="${escapeHtml(key)}" data-name="${escapeHtml(f.name)}" onclick="openFileFromEl(this)">
+        <span>📄</span>
+        <span style="overflow:hidden;text-overflow:ellipsis">${escapeHtml(f.label)}</span>
+        <span class="fi-badges">
+          ${f.pdf ? '<span class="fi-badge pdf">pdf</span>' : ''}
+          ${f.svg ? '<span class="fi-badge svg">svg</span>' : ''}
+        </span>
+      </div>`;
+  }
+  if (!subNames.length && !leaves.length && depth === 1) {
+    html = `<div class="sb-empty">비어 있음</div>`;
+  }
+  return html;
+}
+
 function renderSidebar() {
   const root = document.getElementById('sb-content');
   root.innerHTML = '';
   for (const [key, meta] of Object.entries(FOLDERS)) {
     const files = manifest?.folders?.[key] ?? [];
+    const tree = buildTree(files);
     const sec = document.createElement('div');
     sec.className = 'folder'; sec.id = `sec-${key}`;
     sec.innerHTML = `
@@ -539,25 +613,20 @@ function renderSidebar() {
         <span>${meta.icon}</span><span>${meta.label}</span>
         <span class="folder-arrow">▾</span>
       </div>
-      <ul class="file-list" id="fl-${key}">
-        ${!files.length ? `<li class="sb-empty">비어 있음</li>` :
-          files.map(f => `
-            <li class="file-item" id="fi-${key}-${f.name}"
-                onclick="openFile('${key}','${f.name}')">
-              <span>📄</span>
-              <span style="overflow:hidden;text-overflow:ellipsis">${f.name}</span>
-              <span class="fi-badges">
-                ${f.pdf ? '<span class="fi-badge pdf">pdf</span>' : ''}
-                ${f.svg ? '<span class="fi-badge svg">svg</span>' : ''}
-              </span>
-            </li>`).join('')}
-      </ul>`;
+      <div class="file-list" id="fl-${key}">
+        ${renderTree(tree, key, 1)}
+      </div>`;
     root.appendChild(sec);
   }
 }
 
-function toggleFolder(key) {
-  document.getElementById(`sec-${key}`)?.classList.toggle('closed');
+function toggleFolder(key, isSub) {
+  const id = isSub ? `sub-${key}` : `sec-${key}`;
+  document.getElementById(id)?.classList.toggle('closed');
+}
+
+function openFileFromEl(el) {
+  openFile(el.dataset.folder, el.dataset.name);
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -571,7 +640,7 @@ async function openFile(folder, name) {
   current = entry;
 
   document.querySelectorAll('.file-item.active').forEach(el => el.classList.remove('active'));
-  document.getElementById(`fi-${folder}-${name}`)?.classList.add('active');
+  document.getElementById(`fi-${folder}-${idSafe(name)}`)?.classList.add('active');
 
   document.getElementById('hd-file').textContent = `${folder} / ${name}.tex`;
 

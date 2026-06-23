@@ -1,0 +1,79 @@
+\documentclass[a4paper,11pt]{book}
+\input{../../preambles/preamble_documents.tex}
+
+\title{Book 템플릿}
+\author{Master}
+\date{\today}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+
+\chapter*{머리말}
+\addcontentsline{toc}{chapter}{머리말}
+이 문서는 \texttt{book} 클래스용 기본 템플릿이다.
+\verb|\frontmatter| / \verb|\mainmatter| / \verb|\backmatter|로 앞부분·본문·뒷부분을 구분한다.
+
+\mainmatter
+
+\chapter{기초}
+\label{ch:basics}
+
+\section{수식과 기호}
+테일러 전개:
+\begin{equation}
+  f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n.
+\end{equation}
+
+행렬과 노름: $A \in \R^{n\times n}$, $\norm{A}$, 복소수 $z = a+bi \in \C$,
+켤레 $\bar z$, 절댓값 $\abs{z} = \sqrt{a^2+b^2}$.
+
+\begin{definition}[수열의 극한]
+  수열 $(a_n)_{n\in\N}$이 $L \in \R$로 \emph{수렴}한다는 것은,
+  임의의 $\varepsilon>0$에 대해 $N \in \N$이 존재하여 $n>N \implies \abs{a_n-L}<\varepsilon$인 것이다.
+\end{definition}
+
+\begin{theorem}[단조수렴정리]
+  유계인 단조수열은 수렴한다.
+\end{theorem}
+\begin{proof}
+  생략.
+\end{proof}
+
+\chapter{TikZ와 표}
+
+\section{TikZ 그림}
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \draw[gridhelp, step=0.5] (-0.2,-0.2) grid (3.2,2.2);
+    \draw[arrow] (-0.5,0) -- (3.5,0) node[right] {$x$};
+    \draw[arrow] (0,-0.5) -- (0,2.5) node[above] {$y$};
+    \draw[highlight, thick] (0,0) circle (1.2);
+    \node at (0,0) [point] {};
+    \node[below] at (0,0) {$O$};
+  \end{tikzpicture}
+  \caption{원점을 중심으로 하는 원}
+\end{figure}
+
+\section{표}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    장 & 주제 & 페이지 \\
+    \midrule
+    1 & 기초 & \pageref{ch:basics} \\
+    2 & TikZ와 표 & - \\
+    \bottomrule
+  \end{tabular}
+  \caption{장 구성 요약}
+\end{table}
+
+\backmatter
+\chapter{찾아보기}
+\verb|\backmatter| 이후에는 보통 찾아보기(index), 참고문헌 등을 둔다.
+
+\end{document}

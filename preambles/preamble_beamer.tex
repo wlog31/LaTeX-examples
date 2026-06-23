@@ -1,0 +1,83 @@
+% ============================================================
+%  preamble_beamer.tex
+%  beamer 클래스 전용 공용 프리앰블 (XeLaTeX 기준)
+%  beamer는 geometry/hyperref/fancyhdr을 자체적으로 관리하므로
+%  여기서는 그것들을 별도로 불러오지 않는다.
+% ============================================================
+
+% ---------------------------------------------------------------
+% 테마
+% ---------------------------------------------------------------
+\usetheme{Madrid}
+\usecolortheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamercovered{transparent}
+
+% ---------------------------------------------------------------
+% 한글 / 폰트 (XeLaTeX + kotex)
+% ---------------------------------------------------------------
+\usepackage{fontspec}
+\IfFileExists{kotex.sty}{\usepackage{kotex}}{}
+% \setmainhangulfont{Noto Sans CJK KR}
+
+% ---------------------------------------------------------------
+% 수식 & 기호
+% ---------------------------------------------------------------
+\usepackage{amsmath, amssymb}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{cancel}
+\IfFileExists{physics.sty}{\usepackage{physics}}{}
+
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\C}{\mathbb{C}}
+
+% ---------------------------------------------------------------
+% 표
+% ---------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{tabularx}
+\usepackage{makecell}
+
+% ---------------------------------------------------------------
+% 그림 & TikZ
+% ---------------------------------------------------------------
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{
+  arrows.meta, calc, positioning, shapes.geometric, shapes.symbols,
+  fit, backgrounds, patterns, matrix, intersections,
+  decorations.pathmorphing, decorations.markings, angles, quotes
+}
+\tikzset{
+  >=stealth,
+  line cap=round,
+  line join=round,
+  box/.style={draw, rounded corners, minimum width=2.8cm, minimum height=1.2cm, align=center},
+  point/.style={circle, fill, inner sep=1.2pt},
+  arrow/.style={->, thick},
+  highlight/.style={fill=blue!10, draw=blue!60!black}
+}
+
+% ---------------------------------------------------------------
+% 코드 & 목록
+% ---------------------------------------------------------------
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+}

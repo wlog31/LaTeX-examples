@@ -1,0 +1,69 @@
+\documentclass{beamer}
+\input{../../preambles/preamble_beamer.tex}
+
+\title{Beamer 템플릿}
+\author{Master}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{목차}
+  \tableofcontents
+\end{frame}
+
+\section{수식과 기호}
+
+\begin{frame}{수식 예시}
+  오일러 공식:
+  \[
+    e^{i\theta} = \cos\theta + i\sin\theta.
+  \]
+
+  \pause
+  벡터 노름과 집합 표기: $\norm{\bm{v}} = \sqrt{\sum_i v_i^2}$,
+  \quad $\R, \N, \Z, \Q, \C$.
+
+  \pause
+  \begin{block}{정리}
+    내적공간에서 $\abs{\langle u,v\rangle} \le \norm{u}\norm{v}$ (코시--슈바르츠).
+  \end{block}
+\end{frame}
+
+\section{표}
+
+\begin{frame}{표 예시}
+  \begin{table}
+    \centering
+    \begin{tabular}{lcc}
+      \toprule
+      구분 & 값 1 & 값 2 \\
+      \midrule
+      A & 1 & 2 \\
+      B & 3 & 4 \\
+      \bottomrule
+    \end{tabular}
+    \caption{예제 표}
+  \end{table}
+\end{frame}
+
+\section{TikZ}
+
+\begin{frame}{그림 예시}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=0.9]
+      \node[box, fill=blue!10] (A) {입력};
+      \node[box, fill=green!10, right=1.5cm of A] (B) {처리};
+      \node[box, fill=orange!10, right=1.5cm of B] (C) {출력};
+      \draw[arrow] (A) -- (B);
+      \draw[arrow] (B) -- (C);
+    \end{tikzpicture}
+    \caption{간단한 처리 흐름도}
+  \end{figure}
+\end{frame}
+
+\end{document}

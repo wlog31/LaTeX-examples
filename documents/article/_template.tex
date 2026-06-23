@@ -1,0 +1,92 @@
+\documentclass[a4paper,11pt]{article}
+\input{../../preambles/preamble_documents.tex}
+
+\title{Article 템플릿}
+\author{Master}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  이 문서는 \texttt{article} 클래스용 기본 템플릿이다.
+  수식, 정리/정의 환경, TikZ 그림, 표 사용 예시를 포함한다.
+\end{abstract}
+
+\tableofcontents
+
+\section{서론}
+\texttt{preambles/preamble\_documents.tex}를 공유 프리앰블로 사용한다.
+새 글을 쓸 때는 이 폴더에 파일을 복사한 뒤 본문만 수정하면 된다.
+
+\section{수식과 기호}
+
+오일러 등식:
+\[
+  e^{i\pi} + 1 = 0.
+\]
+
+정적분과 미분:
+\begin{equation}
+  \int_a^b f(x)\,\mathrm{d}x = F(b) - F(a),
+  \qquad
+  \frac{\mathrm{d}}{\mathrm{d}x}\!\left[ \int_a^x f(t)\,\mathrm{d}t \right] = f(x).
+  \label{eq:ftc}
+\end{equation}
+
+집합과 벡터 표기: $\R, \N, \Z, \Q, \C$,\quad $\bm{v} = (v_1, v_2, v_3) \in \R^3$,
+\quad $\mathscr{F}$ (필기체), \quad $\abs{x}$, $\norm{\bm{v}}$.
+
+\begin{definition}[연속함수]
+  함수 $f : \R \to \R$가 점 $a \in \R$에서 \emph{연속}이라 함은, 임의의 $\varepsilon > 0$에 대해
+  $\delta > 0$가 존재하여 $\abs{x-a} < \delta \implies \abs{f(x)-f(a)} < \varepsilon$이 성립하는 것이다.
+\end{definition}
+
+\begin{theorem}[중간값 정리]
+  \label{thm:ivt}
+  함수 $f$가 닫힌구간 $[a,b]$에서 연속이고 $f(a) < c < f(b)$이면,
+  $f(\xi) = c$인 $\xi \in (a,b)$가 적어도 하나 존재한다.
+\end{theorem}
+\begin{proof}
+  생략. 자세한 증명은 해석학 교재를 참고하라.
+\end{proof}
+
+\begin{example}
+  식 \eqref{eq:ftc}와 정리 \ref{thm:ivt}는 \texttt{cleveref}로도 참조할 수 있다: \Cref{thm:ivt}.
+\end{example}
+
+\section{TikZ 그림}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1]
+    \draw[gridhelp, step=0.5] (-0.2,-0.2) grid (3.2,3.2);
+    \draw[arrow] (-0.5,0) -- (3.5,0) node[right] {$x$};
+    \draw[arrow] (0,-0.5) -- (0,3.5) node[above] {$y$};
+    \draw[domain=0:2.6, smooth, variable=\x, blue, thick]
+      plot ({\x}, {\x*\x/3}) node[right] {$y = x^2/3$};
+    \node[point] (P) at (2,4/3) {};
+    \node[above right] at (P) {$P\left(2,\tfrac{4}{3}\right)$};
+  \end{tikzpicture}
+  \caption{간단한 함수 그래프 예시}
+  \label{fig:parabola}
+\end{figure}
+
+\section{표}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    항목 & 측정값 & 오차 \\
+    \midrule
+    A & 12.30 & 0.05 \\
+    B & 9.87  & 0.02 \\
+    C & 15.40 & 0.10 \\
+    \bottomrule
+  \end{tabular}
+  \caption{예제 표 (\texttt{booktabs} 사용)}
+\end{table}
+
+\end{document}
