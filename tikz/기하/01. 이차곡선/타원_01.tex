@@ -1,0 +1,29 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=1.05]
+  \def\a{3.6}
+  \def\b{2.1}
+  \pgfmathsetmacro{\c}{sqrt(\a*\a - \b*\b)}
+
+  \draw[->] (-4.6,0) -- (4.6,0) node[below] {$x$};
+  \draw[->] (0,-3.0) -- (0,3.2) node[left] {$y$};
+
+  \draw[blue!70!black, thick] (0,0) ellipse [x radius=\a, y radius=\b];
+  \node[below left] at (0,0) {$\mathrm{O}$};
+
+  \node[point, label=below:{$\mathrm{F}'$}] at (-\c,0) {};
+  \node[point, label=below:{$\mathrm{F}$}] at (\c,0) {};
+  \node[below right] at (\a,0) {$\mathrm{A}$};
+  \node[below left] at (-\a,0) {$\mathrm{A}'$};
+  \node[above left] at (0,\b) {$\mathrm{B}$};
+  \node[below left] at (0,-\b) {$\mathrm{B}'$};
+
+  \node[blue!70!black,text=black] at (2.05,2.45) {$\displaystyle \frac{x^2}{a^2}+\frac{y^2}{b^2}=1$};
+\end{tikzpicture}
+
+\end{document}
+

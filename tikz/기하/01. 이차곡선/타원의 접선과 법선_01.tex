@@ -1,0 +1,60 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=1.05]
+  \def\a{3.6}
+  \def\b{2.1}
+  \def\t{38}
+  \pgfmathsetmacro{\px}{\a*cos(\t)}
+  \pgfmathsetmacro{\py}{\b*sin(\t)}
+  \pgfmathsetmacro{\tx}{-\a*sin(\t)}
+  \pgfmathsetmacro{\ty}{\b*cos(\t)}
+  \pgfmathsetmacro{\tlen}{sqrt(\tx*\tx + \ty*\ty)}
+  \pgfmathsetmacro{\tux}{\tx/\tlen}
+  \pgfmathsetmacro{\tuy}{\ty/\tlen}
+  \pgfmathsetmacro{\nx}{\px/(\a*\a)}
+  \pgfmathsetmacro{\ny}{\py/(\b*\b)}
+  \pgfmathsetmacro{\nlen}{sqrt(\nx*\nx + \ny*\ny)}
+  \pgfmathsetmacro{\nux}{\nx/\nlen}
+  \pgfmathsetmacro{\nuy}{\ny/\nlen}
+  \pgfmathsetmacro{\Lt}{2.7}
+  \pgfmathsetmacro{\Ln}{2.2}
+
+  \path[name path=xaxis] (-4.6,0) -- (4.8,0);
+  \draw[->] (-4.6,0) -- (5.5,0) node[below] {$x$};
+  \draw[->] (0,-3.0) -- (0,3.2) node[left] {$y$};
+
+  \draw[blue!70!black, thick] (0,0) ellipse [x radius=\a, y radius=\b];
+  \node[point, label=below left:{$\mathrm{O}$}] at (0,0) {};
+
+  \coordinate (P) at (\px,\py);
+  \coordinate (Tminus) at ($ (\px,\py) - \Lt*(\tux,\tuy) $);
+  \coordinate (Tplus) at ($ (\px,\py) + \Lt*(\tux,\tuy) $);
+  \coordinate (Nminus) at ($ (\px,\py) - \Ln*(\nux,\nuy) $);
+  \coordinate (Nplus) at ($ (\px,\py) + \Ln*(\nux,\nuy) $);
+
+  \path[name path=tangentline] (Tminus) -- (Tplus);
+  \path[name path=normalline] (Nminus) -- (Nplus);
+  \path[name intersections={of=tangentline and xaxis, by=Tx}];
+  \path[name intersections={of=normalline and xaxis, by=Nx}];
+
+  \draw[thick, orange!85!black] (Tminus) -- (Tplus)
+    node[above right] {접선};
+  \draw[thick, teal!70!black] (Nminus) -- (Nplus)
+    node[right] {법선};
+
+  \pic[draw, angle radius=9pt, angle eccentricity=1.35]
+    {right angle=Tplus--P--Nplus};
+
+  \node[right] at (\px,\py) {$\mathrm{P}(x_1,\, y_1)$};
+  \node[below] at (Tx) {$\mathrm{T}$};
+  \node[below] at (Nx) {$\mathrm{N}$};
+
+  \node[blue!70!black] at (2.05,-2.45) {$\displaystyle \frac{x^2}{a^2}+\frac{y^2}{b^2}=1$};
+\end{tikzpicture}
+
+\end{document}
+
