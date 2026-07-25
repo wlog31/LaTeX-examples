@@ -1,11 +1,149 @@
 {
-  "generated_at": "2026-06-23T00:31:14.961557+00:00",
+  "generated_at": "2026-07-25T08:13:40.681706+00:00",
   "folders": {
     "tikz": [
       {
         "name": "_template",
         "tex": "tikz/_template.tex",
         "pdf": "tikz/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "공통수학1/01. 다항식의 연산/_template",
+        "tex": "tikz/공통수학1/01. 다항식의 연산/_template.tex",
+        "pdf": "tikz/공통수학1/01. 다항식의 연산/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "공통수학1/02. 방정식과 부등식/_template",
+        "tex": "tikz/공통수학1/02. 방정식과 부등식/_template.tex",
+        "pdf": "tikz/공통수학1/02. 방정식과 부등식/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "공통수학1/03. 경우의 수/_template",
+        "tex": "tikz/공통수학1/03. 경우의 수/_template.tex",
+        "pdf": "tikz/공통수학1/03. 경우의 수/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "공통수학1/04. 행렬/_template",
+        "tex": "tikz/공통수학1/04. 행렬/_template.tex",
+        "pdf": "tikz/공통수학1/04. 행렬/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "공통수학2/01. 도형의 방정식/_template",
+        "tex": "tikz/공통수학2/01. 도형의 방정식/_template.tex",
+        "pdf": "tikz/공통수학2/01. 도형의 방정식/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "공통수학2/02. 집합과 명제/_template",
+        "tex": "tikz/공통수학2/02. 집합과 명제/_template.tex",
+        "pdf": "tikz/공통수학2/02. 집합과 명제/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "공통수학2/03. 함수/_template",
+        "tex": "tikz/공통수학2/03. 함수/_template.tex",
+        "pdf": "tikz/공통수학2/03. 함수/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "기하/01. 이차곡선/_template",
+        "tex": "tikz/기하/01. 이차곡선/_template.tex",
+        "pdf": "tikz/기하/01. 이차곡선/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "기하/02. 공간도형과 공간좌표/_template",
+        "tex": "tikz/기하/02. 공간도형과 공간좌표/_template.tex",
+        "pdf": "tikz/기하/02. 공간도형과 공간좌표/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "기하/03. 벡터/_template",
+        "tex": "tikz/기하/03. 벡터/_template.tex",
+        "pdf": "tikz/기하/03. 벡터/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "대수/01. 지수함수와 로그함수/_template",
+        "tex": "tikz/대수/01. 지수함수와 로그함수/_template.tex",
+        "pdf": "tikz/대수/01. 지수함수와 로그함수/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "대수/02. 삼각함수/_template",
+        "tex": "tikz/대수/02. 삼각함수/_template.tex",
+        "pdf": "tikz/대수/02. 삼각함수/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "대수/03. 수열/_template",
+        "tex": "tikz/대수/03. 수열/_template.tex",
+        "pdf": "tikz/대수/03. 수열/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "미적분1/01. 함수의 극한과 연속/불연속 함수의 그래프_01",
+        "tex": "tikz/미적분1/01. 함수의 극한과 연속/불연속 함수의 그래프_01.tex",
+        "pdf": "tikz/미적분1/01. 함수의 극한과 연속/불연속 함수의 그래프_01.pdf",
+        "svg": null
+      },
+      {
+        "name": "미적분1/02. 미분/_template",
+        "tex": "tikz/미적분1/02. 미분/_template.tex",
+        "pdf": "tikz/미적분1/02. 미분/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "미적분1/03. 적분/함수의 그래프로 둘러싸인 영역_01",
+        "tex": "tikz/미적분1/03. 적분/함수의 그래프로 둘러싸인 영역_01.tex",
+        "pdf": "tikz/미적분1/03. 적분/함수의 그래프로 둘러싸인 영역_01.pdf",
+        "svg": null
+      },
+      {
+        "name": "미적분1/03. 적분/함수의 그래프로 둘러싸인 영역_02",
+        "tex": "tikz/미적분1/03. 적분/함수의 그래프로 둘러싸인 영역_02.tex",
+        "pdf": "tikz/미적분1/03. 적분/함수의 그래프로 둘러싸인 영역_02.pdf",
+        "svg": null
+      },
+      {
+        "name": "미적분2/01. 수열의 극한/_template",
+        "tex": "tikz/미적분2/01. 수열의 극한/_template.tex",
+        "pdf": "tikz/미적분2/01. 수열의 극한/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "미적분2/02. 미분법/_template",
+        "tex": "tikz/미적분2/02. 미분법/_template.tex",
+        "pdf": "tikz/미적분2/02. 미분법/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "미적분2/03. 적분법/_template",
+        "tex": "tikz/미적분2/03. 적분법/_template.tex",
+        "pdf": "tikz/미적분2/03. 적분법/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "확률과 통계/01. 경우의 수/_template",
+        "tex": "tikz/확률과 통계/01. 경우의 수/_template.tex",
+        "pdf": "tikz/확률과 통계/01. 경우의 수/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "확률과 통계/02. 확률/_template",
+        "tex": "tikz/확률과 통계/02. 확률/_template.tex",
+        "pdf": "tikz/확률과 통계/02. 확률/_template.pdf",
+        "svg": null
+      },
+      {
+        "name": "확률과 통계/03. 통계/_template",
+        "tex": "tikz/확률과 통계/03. 통계/_template.tex",
+        "pdf": "tikz/확률과 통계/03. 통계/_template.pdf",
         "svg": null
       }
     ],
