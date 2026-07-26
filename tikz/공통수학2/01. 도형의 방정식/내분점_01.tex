@@ -1,0 +1,57 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=.6]
+	\coordinate (O) at(0,0);
+  \coordinate (X) at(9,0);
+  \coordinate (Y) at(0,8);
+	\coordinate (A) at(2,1);
+	\coordinate (B) at(8,7);
+	\coordinate (Ax) at($(O)!(A)!(X)$);
+	\coordinate (Ay) at($(O)!(A)!(Y)$);
+	\coordinate (Bx) at($(O)!(B)!(X)$);
+	\coordinate (By) at($(O)!(B)!(Y)$);
+	\coordinate (P) at(6,5);
+	\coordinate (Px) at($(O)!(P)!(X)$);
+	\coordinate (Py) at($(O)!(P)!(Y)$);
+  
+  \draw[-stealth] (-1,0)--(9,0) node[below]{$x$};
+	\draw[-stealth] (0,-1)--(0,8.5) node[left]{$y$};
+		
+		\draw (A)--(B);
+		\draw[dashed] (Ay)--(A)--(Ax) (By)--(B)--(Bx) (Py)--(P)--(Px);
+		\draw[dotted] (A) to[bend left=30] node[midway]{\colorbox{white}{$m$}} (P);
+		\draw[dotted] (P) to[bend left=50] node[midway]{\colorbox{white}{$n$}} (B);
+		\draw[dotted] (Ax) to[bend right=30] node[midway]{\colorbox{white}{$m$}} (Px);
+		\draw[dotted] (Px) to[bend right=50] node[midway]{\colorbox{white}{$n$}} (Bx);
+		\draw[dotted] (Ay) to[bend left=30] node[midway]{\colorbox{white}{$m$}} (Py);
+		\draw[dotted] (Py) to[bend left=50] node[midway]{\colorbox{white}{$n$}} (By);
+
+    \pic[draw,angle radius=7pt]{right angle=X--Ax--A};
+    \pic[draw,angle radius=7pt]{right angle=X--Px--P};
+    \pic[draw,angle radius=7pt]{right angle=X--Bx--B};
+    \pic[draw,angle radius=7pt]{right angle=A--Ay--Y};
+    \pic[draw,angle radius=7pt]{right angle=B--By--Y};
+    \pic[draw,angle radius=7pt]{right angle=P--Py--Y};
+
+    \fill[color=black] (A) circle (1mm);
+		\fill[color=black] (B) circle (1mm);
+		\fill[color=red] (P) circle (1mm);
+
+    \node[right] at(A) {$\mathrm{A}\left(x_1,\:y_1\right)$};
+		\node[right] at(B) {$\mathrm{B}\left(x_2,\:y_2\right)$};
+		\node[below] at(Ax) {$x_1$};
+		\node[below right] at(Bx) {$x_2$};
+		\node[below,yshift=-1mm] at(Px) {$x$};
+		\node[left] at(Ay) {$y_1$};
+		\node[left] at(By) {$y_2$};
+		\node[left,xshift=-1mm] at(Py) {$y$};
+		\node[below left] at(O) {$\mathrm{O}$};
+		\node[below right] at(P) {$\mathrm{P}$};
+	\end{tikzpicture}
+
+\end{document}
+

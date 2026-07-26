@@ -1,0 +1,17 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=1]		
+	\draw[line width=0.3mm,color=blue,dashed] (0,-1)--(0,4) node[right]{$x=p$};
+	\draw[line width=0.3mm, smooth, variable=\x, domain=-2:2] plot(\x,\x*\x);
+				
+	\node[below right] at(0,0) {$(p,\:q)$};
+				
+	\fill[color=red] (0,0) circle (0.08);
+\end{tikzpicture}
+
+\end{document}
+

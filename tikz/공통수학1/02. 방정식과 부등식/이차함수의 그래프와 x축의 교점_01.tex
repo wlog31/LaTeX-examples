@@ -1,0 +1,18 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=1]		
+	\draw[line width=0.3mm,-stealth] (-2.5,0)--(2.5,0) node[below]{$x$};
+	
+  \draw[line width=0.3mm,smooth,variable=\x,domain=-1.7:1.7] plot(\x,\x*\x-1);
+	\draw[line width=0.3mm,smooth,variable=\x,domain=-1.7:1.7] plot(\x,1-\x*\x);
+	
+  \fill[color=red] (-1,0) circle (0.08) node[below left,xshift=-1mm]{$\alpha$};
+	\fill[color=red] (1,0) circle (0.08) node[below right,xshift=1mm] {$\beta$};
+\end{tikzpicture}
+
+\end{document}
+
