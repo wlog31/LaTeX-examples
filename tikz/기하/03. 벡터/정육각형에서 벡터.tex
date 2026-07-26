@@ -1,0 +1,36 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=1.75, line cap=round, line join=round]
+  \pgfmathsetmacro{\rt}{sqrt(3)/2}
+
+  \coordinate (A) at (0,1);
+  \coordinate (B) at (-\rt,0.5);
+  \coordinate (C) at (-\rt,-0.5);
+  \coordinate (D) at (0,-1);
+  \coordinate (E) at (\rt,-0.5);
+  \coordinate (F) at (\rt,0.5);
+
+  \draw[thick] (A)--(B)--(C)--(D)--(E)--(F)--cycle;
+
+  \draw[-stealth, very thick, red!75!black] (A)--(B)
+    node[midway, above left] {$\vec a$};
+  \draw[-stealth, very thick, red!75!black] (C)--(D)
+    node[midway, below left] {$\vec b$};
+  \draw[-stealth, very thick, red!75!black] (E)--(F)
+    node[midway, right] {$\vec c$};
+
+
+  \node[above] at (A) {$\mathrm{A}$};
+  \node[left] at (B) {$\mathrm{B}$};
+  \node[left] at (C) {$\mathrm{C}$};
+  \node[below] at (D) {$\mathrm{D}$};
+  \node[right] at (E) {$\mathrm{E}$};
+  \node[right] at (F) {$\mathrm{F}$};
+\end{tikzpicture}
+
+\end{document}
+

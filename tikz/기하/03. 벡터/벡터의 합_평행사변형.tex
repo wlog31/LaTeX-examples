@@ -1,0 +1,25 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=1.25, line cap=round, line join=round]
+  \coordinate (O) at (0,0);
+  \coordinate (B) at (0.8,2.0);
+  \coordinate (A) at (3.4,0);
+  \coordinate (C) at (4.2,2.0);
+
+  \draw[densely dotted, thick] (O)--(A)--(C)--(B)--cycle;
+  \draw[-stealth, very thick, red!70!black] (O)--(C);
+  \draw[-stealth, very thick, blue!70!black] (O)--(A);
+  \draw[-stealth, very thick, blue!70!black] (O)--(B);
+
+  \node[left] at (O) {$\mathrm{O}$};
+  \node[right] at (A) {$\mathrm{A}$};
+  \node[left] at (B) {$\mathrm{B}$};
+  \node[right] at (C) {$\mathrm{C}$};
+\end{tikzpicture}
+
+\end{document}
+

@@ -1,0 +1,22 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=1.25, line cap=round, line join=round]
+  \coordinate (O) at (0,0);
+  \coordinate (A) at (3.4,0);
+  \coordinate (B) at (4.2,2.0);
+
+  \draw[-stealth, very thick, blue!70!black] (O)--(A);
+  \draw[-stealth, very thick, blue!70!black] (A)--(B);
+  \draw[-stealth, very thick, red!70!black] (O)--(B);
+
+  \node[left] at (O) {$\mathrm{O}$};
+  \node[right] at (A) {$\mathrm{A}$};
+  \node[right] at (B) {$\mathrm{B}$};
+\end{tikzpicture}
+
+\end{document}
+

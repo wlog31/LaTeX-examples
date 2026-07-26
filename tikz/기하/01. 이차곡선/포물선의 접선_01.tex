@@ -1,0 +1,31 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=0.9]
+  \def\p{1}
+  \def\Px{2}
+
+  \draw[->] (-4,0) -- (6,0) node[below] {$x$};
+  \draw[->] (0,-5.0) -- (0,5.0) node[left] {$y$};
+  \node[below left] at (0,0) {$\mathrm{O}$};
+
+  \draw[blue!70!black, thick, samples=180, smooth, variable=\t, domain=-4.5:4.5] plot ({(\t*\t)/(4*\p)}, {\t}) node[right]{$y^2=4px$};
+
+  \draw (-\p,-5) -- (-\p,5) node[left] {$x=-p$};
+
+  \coordinate (P) at (\Px,{sqrt(4*\p*\Px)});
+
+  \draw[orange!85!black, thick] plot[domain=-4:5,variable=\t] ({\t, {sqrt(\p/\Px)*(\t+\Px)}}) node[above] {접선};
+
+  \node[point] at (\p,0) {};
+  \node[below] at (\p,0) {$\mathrm{F}$};
+  \node[point] at (P) {};
+  \node[above] at (P) {$\mathrm{P}$};
+
+\end{tikzpicture}
+
+\end{document}
+

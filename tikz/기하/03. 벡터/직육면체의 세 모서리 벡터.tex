@@ -1,0 +1,46 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[3D,
+  line cap=round,
+  line join=round
+]
+  \coordinate (A) at (0,0,0);
+  \coordinate (B) at (2.35,0,0);
+  \coordinate (D) at (0,5,0);
+  \coordinate (C) at (2.35,5,0);
+  \coordinate (E) at (0,0,3);
+  \coordinate (F) at (2.35,0,3);
+  \coordinate (H) at (0,5,3);
+  \coordinate (G) at (2.35,5,3);
+
+  \fill[pink!25] (E)--(F)--(B)--(C)--(D)--(H)--cycle;
+
+  \draw[thick] (E)--(F)--(B)--(C)--(D)--(H)--cycle;
+  \draw[thick] (F)--(G)--(H);
+  \draw[thick] (C)--(G);
+  \draw[densely dotted, thick] (D)--(A)--(B);
+  \draw[densely dotted, thick] (A)--(E);
+
+  \draw[-stealth, very thick, red!75!black] (A)--(B)
+    node[midway, above left] {$\vec a$};
+  \draw[-stealth, very thick, red!75!black] (A)--(D)
+    node[midway, above left] {$\vec b$};
+  \draw[-stealth, very thick, red!75!black] (A)--(E)
+    node[midway, left] {$\vec c$};
+
+  \node[left] at (A) {$\mathrm{A}$};
+  \node[left] at (B) {$\mathrm{B}$};
+  \node[right] at (C) {$\mathrm{C}$};
+  \node[right] at (D) {$\mathrm{D}$};
+  \node[left] at (E) {$\mathrm{E}$};
+  \node[left] at (F) {$\mathrm{F}$};
+  \node[right] at (G) {$\mathrm{G}$};
+  \node[right] at (H) {$\mathrm{H}$};
+\end{tikzpicture}
+
+\end{document}
+
