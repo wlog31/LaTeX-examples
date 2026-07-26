@@ -460,6 +460,7 @@ header {
     <span class="hd-mode-badge view" id="hd-badge">보기</span>
     <div class="hd-space"></div>
     <button class="hd-theme" id="btn-theme" title="테마 전환">☀️</button>
+    <button class="hd-theme" id="btn-folder" title="폴더 보기">📁</button>
     <button class="hd-theme" id="btn-home" title="처음 화면으로">🏠</button>
   </header>
 
@@ -640,6 +641,19 @@ header {
    HOME BUTTON
 ════════════════════════════════════════════════════════════ */
 document.getElementById('btn-home').addEventListener('click', goHome);
+
+/* ════════════════════════════════════════════════════════════
+   FOLDER BUTTON
+   Jump back to the home (folder-picker) screen, opened directly
+   at the folder that contains the file currently being viewed —
+   as if you had navigated there by hand from the start screen.
+════════════════════════════════════════════════════════════ */
+document.getElementById('btn-folder').addEventListener('click', () => {
+  if (!current || !current._folder) return;
+  const dirParts = current.name.split('/').slice(0, -1);
+  homePath = [current._folder, ...dirParts];
+  renderHome();
+});
 
 /* ════════════════════════════════════════════════════════════
    STATE
@@ -962,7 +976,7 @@ async function openFile(folder, name) {
 
   const entry = manifest.folders[folder]?.find(f => f.name === name);
   if (!entry) return;
-  current = entry;
+  current = { ...entry, _folder: folder };
 
   document.getElementById('app').classList.remove('home-mode');
   document.querySelectorAll('.file-item.active').forEach(el => el.classList.remove('active'));

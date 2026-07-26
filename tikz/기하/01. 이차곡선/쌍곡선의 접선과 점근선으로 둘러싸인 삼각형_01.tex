@@ -18,15 +18,6 @@
   \pgfmathsetmacro{\hLt}{4}
   \pgfmathsetmacro{\hSlope}{\hb/\ha}
 
-  \draw[->] (-6.5,0) -- (6.5,0) node[below] {$x$};
-  \draw[->] (0,-4.5) -- (0,4.5) node[left] {$y$};
-  \node[below left,yshift=-1mm] at (0,0) {$\mathrm{O}$};
-
-  \draw[blue!70!black, thick, samples=160, smooth, variable=\t, domain=-1.65:1.65]
-    plot ({\ha*cosh(\t)}, {\hb*sinh(\t)});
-  \draw[blue!70!black, thick, samples=160, smooth, variable=\t, domain=-1.65:1.65]
-    plot ({-\ha*cosh(\t)}, {\hb*sinh(\t)});
-
   \path[name path=tangentlineh]
     ($ (\hx,\hy) - \hLt*(\htux,\htuy) $) --
     ($ (\hx,\hy) + \hLt*(\htux,\htuy) $);
@@ -37,10 +28,19 @@
 
   \fill[orange!15] (A)--(B)--(0,0)--cycle;
 
+  \draw[->] (-6.5,0) -- (6.5,0) node[below] {$x$};
+  \draw[->] (0,-4.5) -- (0,4.5) node[left] {$y$};
+  \node[below left,xshift=1mm,yshift=-1mm] at (0,0) {$\mathrm{O}$};
+
+  \draw[blue!70!black, thick, samples=160, smooth, variable=\t, domain=-1.65:1.65]
+    plot ({\ha*cosh(\t)}, {\hb*sinh(\t)});
+  \draw[blue!70!black, thick, samples=160, smooth, variable=\t, domain=-1.65:1.65]
+    plot ({-\ha*cosh(\t)}, {\hb*sinh(\t)});
+
   \draw[gray!70, dashed] (-6,-6*\hSlope) -- (6,6*\hSlope)
-    node[above right] {$y=\frac{b}{a}x$};
+    node[above right] {$y=\dfrac{b}{a}x$};
   \draw[gray!70, dashed] (-6,6*\hSlope) -- (6,-6*\hSlope)
-    node[below right] {$y=-\frac{b}{a}x$};
+    node[below right] {$y=-\dfrac{b}{a}x$};
 
   \draw[thick, orange!85!black]
     ($ (\hx,\hy) - \hLt*(\htux,\htuy) $) --
@@ -54,7 +54,7 @@
   \node[point] at (B) {};
   \node[below] at (B) {$\mathrm{B}$};
 
-  \node[blue!70!black] at (3.25,-3.35) {$\displaystyle \frac{x^2}{a^2}-\frac{y^2}{b^2}=1$};
+  \node[blue!70!black] at (6.25,-2.35) {$\displaystyle \frac{x^2}{a^2}-\frac{y^2}{b^2}=1$};
 \end{tikzpicture}
 
 \end{document}
