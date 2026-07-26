@@ -742,12 +742,18 @@ function buildTree(files) {
 }
 
 /** Render a tree node into nested subfolder / file-item markup. */
-function renderTree(node, key, depth) {
+function subfolderId(key, path) {
+  return idSafe(`${key}__${path.join('/')}`);
+}
+
+function renderTree(node, key, path) {
   let html = '';
+  const depth = path.length + 1;
   const subNames = Object.keys(node.sub).sort((a, b) => a.localeCompare(b));
   for (const subName of subNames) {
     const child = node.sub[subName];
-    const subId = idSafe(`${key}__${subName}__${depth}__${Math.random().toString(36).slice(2, 7)}`);
+    const childPath = [...path, subName];
+    const subId = subfolderId(key, childPath);
     html += `
       <div class="subfolder" id="sub-${subId}">
         <div class="folder-hdr" style="padding-left:${0.9 + depth * 0.5}rem"
@@ -756,7 +762,7 @@ function renderTree(node, key, depth) {
           <span class="folder-arrow">▾</span>
         </div>
         <div class="file-list" id="fl-${subId}">
-          ${renderTree(child, key, depth + 1)}
+          ${renderTree(child, key, childPath)}
         </div>
       </div>`;
   }
@@ -796,7 +802,7 @@ function renderSidebar() {
         <span class="folder-arrow">▾</span>
       </div>
       <div class="file-list" id="fl-${key}">
-        ${renderTree(tree, key, 1)}
+        ${renderTree(tree, key, [])}
       </div>`;
     root.appendChild(sec);
     if (idx < keys.length - 1) {
@@ -810,6 +816,29 @@ function renderSidebar() {
 function toggleFolder(key, isSub) {
   const id = isSub ? `sub-${key}` : `sec-${key}`;
   document.getElementById(id)?.classList.toggle('closed');
+}
+
+/** Collapse every top-level folder and subfolder in the sidebar. */
+function collapseAllSidebar() {
+  document.querySelectorAll('#sb-content .folder').forEach(el => el.classList.add('closed'));
+  document.querySelectorAll('#sb-content .subfolder').forEach(el => el.classList.add('closed'));
+}
+
+/**
+ * Collapse the whole sidebar, then re-open only the chain of folders that
+ * leads to the given file (its top-level folder + each ancestor subfolder),
+ * so just the deepest folder containing the file is expanded.
+ */
+function expandSidebarTo(folder, name) {
+  collapseAllSidebar();
+  document.getElementById(`sec-${folder}`)?.classList.remove('closed');
+  const dirParts = name.split('/').slice(0, -1);
+  const path = [];
+  for (const part of dirParts) {
+    path.push(part);
+    const subId = subfolderId(folder, path);
+    document.getElementById(`sub-${subId}`)?.classList.remove('closed');
+  }
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -938,6 +967,7 @@ async function openFile(folder, name) {
   document.getElementById('app').classList.remove('home-mode');
   document.querySelectorAll('.file-item.active').forEach(el => el.classList.remove('active'));
   document.getElementById(`fi-${folder}-${idSafe(name)}`)?.classList.add('active');
+  expandSidebarTo(folder, name);
 
   document.getElementById('hd-file').textContent = `${folder} / ${name}.tex`;
 
