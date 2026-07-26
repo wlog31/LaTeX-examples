@@ -1,0 +1,50 @@
+name: Update manifest
+
+# tikz/documents/preambles 폴더에 변화가 생길 때마다
+# generate_manifest.py를 실행해 files.json을 최신 상태로 유지합니다.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tikz/**"
+      - "documents/**"
+      - "preambles/**"
+      - "generate_manifest.py"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-manifest
+  cancel-in-progress: true
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Regenerate files.json
+        run: python3 generate_manifest.py
+
+      - name: Commit changes if needed
+        run: |
+          if git diff --quiet -- files.json; then
+            echo "files.json unchanged, nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add files.json
+          git commit -m "chore: auto-update files.json [skip ci]"
+          git push

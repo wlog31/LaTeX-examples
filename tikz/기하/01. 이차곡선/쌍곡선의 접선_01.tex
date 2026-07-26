@@ -1,0 +1,61 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=0.8]
+  \def\ha{2.2}
+  \def\hb{1.5}
+  \def\u{0.82}
+  \pgfmathsetmacro{\hx}{\ha*cosh(\u)}
+  \pgfmathsetmacro{\hy}{\hb*sinh(\u)}
+  \pgfmathsetmacro{\tdx}{\ha*sinh(\u)}
+  \pgfmathsetmacro{\tdy}{\hb*cosh(\u)}
+  \pgfmathsetmacro{\htlen}{sqrt(\tdx*\tdx + \tdy*\tdy)}
+  \pgfmathsetmacro{\htux}{\tdx/\htlen}
+  \pgfmathsetmacro{\htuy}{\tdy/\htlen}
+  \pgfmathsetmacro{\hLt}{4}
+  \pgfmathsetmacro{\hSlope}{\hb/\ha}
+
+  \draw[->] (-6.5,0) -- (6.5,0) node[below] {$x$};
+  \draw[->] (0,-4.5) -- (0,4.5) node[left] {$y$};
+  \node[below left,xshift=1mm,yshift=-1mm] at (0,0) {$\mathrm{O}$};
+
+  \draw[blue!70!black, thick, samples=160, smooth, variable=\t, domain=-1.65:1.65]
+    plot ({\ha*cosh(\t)}, {\hb*sinh(\t)});
+  \draw[blue!70!black, thick, samples=160, smooth, variable=\t, domain=-1.65:1.65]
+    plot ({-\ha*cosh(\t)}, {\hb*sinh(\t)});
+
+  \path[name path=tangentlineh]
+    ($ (\hx,\hy) - \hLt*(\htux,\htuy) $) --
+    ($ (\hx,\hy) + \hLt*(\htux,\htuy) $);
+  \path[name path=asympplus] (-6,-6*\hSlope) -- (6,6*\hSlope);
+  \path[name path=asympminus] (-6,6*\hSlope) -- (6,-6*\hSlope);
+  \path[name intersections={of=tangentlineh and asympplus, by=A}];
+  \path[name intersections={of=tangentlineh and asympminus, by=B}];
+
+  \fill[orange!15] (A)--(B)--(0,0)--cycle;
+
+  \draw[gray!70, dashed] (-6,-6*\hSlope) -- (6,6*\hSlope)
+    node[above right] {$y=\frac{b}{a}x$};
+  \draw[gray!70, dashed] (-6,6*\hSlope) -- (6,-6*\hSlope)
+    node[below right] {$y=-\frac{b}{a}x$};
+
+  \draw[thick, orange!85!black]
+    ($ (\hx,\hy) - \hLt*(\htux,\htuy) $) --
+    ($ (\hx,\hy) + \hLt*(\htux,\htuy) $)
+    node[above left] {접선};
+
+  \node[point] at (\hx,\hy) {};
+  \node[below right] at (\hx,\hy) {$\mathrm{P}(x_1,\, y_1)$};
+  \node[point] at (A) {};
+  \node[above left] at (A) {$\mathrm{A}$};
+  \node[point] at (B) {};
+  \node[below] at (B) {$\mathrm{B}$};
+
+  \node[blue!70!black] at (3.25,-3.35) {$\displaystyle \frac{x^2}{a^2}-\frac{y^2}{b^2}=1$};
+\end{tikzpicture}
+
+\end{document}
+
