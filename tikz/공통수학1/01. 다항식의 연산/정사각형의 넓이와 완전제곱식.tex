@@ -1,0 +1,29 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=1.2]
+    % 전체 사각형 외곽
+    \draw[thick] (0,0) rectangle (3,3);
+    
+    % 내부 분할선
+    \draw[dashed] (2,0) -- (2,3);
+    \draw[dashed] (0,1) -- (3,1);
+    
+    % 각 영역의 넓이 표시
+    \node at (1,2) {$a^2$};
+    \node at (2.5,2) {$ab$};
+    \node at (1,0.5) {$ab$};
+    \node at (2.5,0.5) {$b^2$};
+    
+    % 변의 길이 표시
+    \draw [decorate,decoration={brace,amplitude=5pt,mirror}] (0,-0.1) -- (2,-0.1) node [black,midway,yshift=-0.4cm] {$a$};
+    \draw [decorate,decoration={brace,amplitude=5pt,mirror}] (2,-0.1) -- (3,-0.1) node [black,midway,yshift=-0.4cm] {$b$};
+    \draw [decorate,decoration={brace,amplitude=5pt}] (-0.1,1) -- (-0.1,3) node [black,midway,xshift=-0.4cm] {$a$};
+    \draw [decorate,decoration={brace,amplitude=5pt}] (-0.1,0) -- (-0.1,1) node [black,midway,xshift=-0.4cm] {$b$};
+\end{tikzpicture}
+
+\end{document}
+
