@@ -1,0 +1,29 @@
+
+\documentclass[tikz,border=5pt]{standalone}
+\input{../../../preambles/preamble_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[scale=1]
+	% Draw the rectangle (universal set)
+	\draw[rounded corners=1mm] (0.2, 2.7) -- (0, 2.7) -- (0, -0.2) -- (4, -0.2) -- (4, 2.7) -- (0.8, 2.7);
+		
+	\coordinate (centerA) at(1.5, 1.25);
+	\coordinate (centerB) at(2.5, 1.25);
+		
+	% fill the circles A and B
+	\fill[color=red!20] (centerA) circle (1);
+	\fill[color=red!20] (centerB) circle (1);
+		
+	% draw the circle A as arc
+	\draw (centerA) ++ (100:1) arc[start angle=100, end angle=440, radius=1];
+	\draw (centerB) ++ (100:1) arc[start angle=100, end angle=440, radius=1];
+		
+	% Add labels
+	\node at (1.5, 2.3) {$A$};
+	\node at (2.5, 2.3) {$B$};
+	\node at (0.5, 2.7) {$U$};
+\end{tikzpicture}
+
+\end{document}
+
