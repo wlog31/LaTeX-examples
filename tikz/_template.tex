@@ -4,23 +4,24 @@
 
 \begin{document}
 
-\begin{tikzpicture}[3D]
-  \coordinate (O) at (0,0,0);
-  \coordinate (A) at (5,12,0);
-  \coordinate (B) at (1.15,0,0);
-  \coordinate (C) at (0,2.15,2.25);
+\begin{tikzpicture}[scale=.7,declare function={f(\t)=(\t)^2 + 3; g(\t)=-(1/5)*(\t)^2 + 3;}]
+  \fill[red!20] plot[domain=0:2,smooth,variable=\x] ({\x},{g(\x)}) -- (2,{f(2)}) -- plot[domain=2:0,smooth,variable=\x] ({\x},{f(\x)}) -- cycle;
 
-  \fill[teal!25] (A)--(B)--(C)--cycle;
-  \draw (A)--(B)--(C)--cycle;
+  \draw[-stealth] (-5,0) -- (5,0) node[below] {$x$};
+  \draw[-stealth] (0,-1) -- (0,10) node[left] {$y$};
 
-  \draw[-stealth] (O) -- (5.5,0,0) node[below left] {$x$};
-  \draw[-stealth] (O) -- (0,12.5,0) node[above] {$y$};
-  \draw[-stealth] (O) -- (0,0,4) node[left] {$z$};
+  \begin{scope}
+    \clip (-4.5,-1) rectangle (4.5,10);
 
-  \node[above left] at (O) {$\mathrm{O}$};
-  \node[below right] at (A) {$\mathrm{A}(5,\,12,\,0)$};
-  \node[above left] at (B) {$\mathrm{B}$};
-  \node[above right] at (C) {$\mathrm{C}$};
+    \draw[domain=-3:3,smooth,variable=\x] plot ({\x},{f(\x)});
+    \draw[domain=-4.5:4.5,smooth,variable=\x] plot ({\x},{g(\x)});
+  \end{scope}
+
+  \draw (2,-1) node[below]{$x=2$} -- (2,10);
+
+  \node[below left] at(0,0) {$\mathrm{O}$};
+  \node[below left] at(-2.5,{f(-2.5)}) {$y=x^2 + 3$};
+  \node[above,yshift=2mm] at(-4.5,{g(-2.5)}) {$y=-\dfrac{1}{5}x^2 + 3$};
 \end{tikzpicture}
 
 \end{document}
